@@ -86,7 +86,7 @@ def mapear_macroregiao(cidade):
     return "Não Identificada"
 
 # ==============================================================================
-# LÓGICA DE EXTRAÇÃO (SMART EXTRACTOR 2.1)
+# LÓGICA DE EXTRAÇÃO
 # ==============================================================================
 class SmartExtractor:
     def __init__(self):
@@ -190,7 +190,7 @@ def main():
             except Exception as e: st.error(f"FALHA: {e}")
     else:
         st.subheader("ANÁLISE UNITÁRIA E DE MULTI ENTRADA")
-        st.info("💡 Use ENTER para separar múltiplas notícias. O áudio adicionará novas linhas automaticamente.")
+        st.info("Use ENTER para separar múltiplas notícias. O áudio adicionará novas linhas automaticamente.")
 
         if 'texto_manual' not in st.session_state: st.session_state['texto_manual'] = ""
         c_mic, c_void = st.columns([1, 4])
@@ -230,9 +230,9 @@ def main():
         st.markdown("---")
 
         # ==============================================================================
-        # 🚨 SISTEMA DE ALERTA COM TOP 5 (RANKING DE ICR) - CORRIGIDO (SEM ESPAÇOS HTML)
+        # SISTEMA DE ALERTA COM TOP 5 (RANKING DE ICR)
         # ==============================================================================
-        st.markdown("### 🚨 SISTEMA DE ALERTA DE POLÍTICAS PÚBLICAS")
+        st.markdown("### SISTEMA DE ALERTA DE POLÍTICAS PÚBLICAS")
 
         regioes_afetadas = df_show[df_show['MACROREGIAO'] != "Não Identificada"]
         if not regioes_afetadas.empty:
@@ -276,7 +276,7 @@ O monitoramento identificou que mais de {int(icr_1)}% de todos os casos analisad
             st.info("Dados regionais insuficientes para calcular os índices de criticidade.")
 
         st.markdown("---")
-        st.markdown("### 📊 DASHBOARD ANALÍTICO")
+        st.markdown("### DASHBOARD ANALÍTICO")
 
         # --- LINHA 1: CAUSAS E CIDADES ---
         col_g1, col_g2 = st.columns(2)
@@ -312,7 +312,7 @@ O monitoramento identificou que mais de {int(icr_1)}% de todos os casos analisad
             st.plotly_chart(fig_macro, use_container_width=True)
 
         # --- LINHA 3: DEMOGRAFIA ---
-        st.markdown("### 👥 PERFIL DAS VÍTIMAS")
+        st.markdown("### PERFIL DAS VÍTIMAS")
         col_d1, col_d2 = st.columns(2)
         with col_d1:
             st.caption("COR DA PELE IDENTIFICADA")
@@ -330,7 +330,7 @@ O monitoramento identificou que mais de {int(icr_1)}% de todos os casos analisad
                 st.plotly_chart(fig_hist, use_container_width=True)
 
         # --- TABELA ---
-        st.markdown("### 📂 DADOS BRUTOS")
+        st.markdown("### DADOS BRUTOS")
         st.dataframe(df_show[['DATA', 'LOCALIDADE', 'MACROREGIAO', 'IDADE_ESTIMADA', 'COR_PELE', 'CLASSIFICACAO_CAUSA', 'NOTÍCIA_ORIGINAL']], use_container_width=True, height=300)
 
         # --- DOWNLOADS ---
