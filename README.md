@@ -13,9 +13,9 @@ Um sistema web interativo desenvolvido com **Streamlit** para o monitoramento, e
 
 ## 🛠️ Tecnologias Utilizadas
 
-* **Linguagem:** Python 3.x
+* **Linguagem:** Python 3.3
 * **Interface Web:** Streamlit
-* **Processamento de Dados:** Pandas, RegEx (Expressões Regulares)
+* **Processamento de Dados:** Pandas, RegEx (Expressões Regulares), scikit-learn, NLTK (Natural Language Toolkit)
 * **Visualização:** Plotly Express
 * **Recursos de Áudio:** `streamlit-mic-recorder`
 
@@ -25,4 +25,4 @@ Um sistema web interativo desenvolvido com **Streamlit** para o monitoramento, e
 Certifique-se de ter o Python instalado. Em seguida, instale as bibliotecas necessárias executando o comando abaixo no seu terminal:
 
 ```bash
-pip install streamlit pandas plotly streamlit-mic-recorder XlsxWriter
+pip install streamlit NLTK scikit-learn pandas plotly streamlit-mic-recorder XlsxWriter
