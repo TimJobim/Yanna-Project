@@ -170,7 +170,7 @@ def main():
     col_h1, col_h2 = st.columns([3, 1])
     with col_h1:
         st.title("Sistema de Monitoramento de Feminicídios // CE")
-        st.caption("Desenvolvido por: Yanna Queiroz | Orientadores: Me. Helyson Braz, Thyana Vicente e Roberta Jeane")
+        st.caption("Desenvolvido por: Yanna Queiroz | Orientadores: Prof. Helyson Braz, Profa. Thyana Vicente e Profa. Roberta Jeane")
 
     st.sidebar.markdown("### Gerar Notícias por:")
     modo_input = st.sidebar.radio("Fonte de dados:", ("UPLOAD DE ARQUIVO (.CSV)", "INPUT MANUAL / VOZ"), label_visibility="collapsed")
