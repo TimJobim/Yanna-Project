@@ -6,9 +6,13 @@ import plotly.express as px
 from streamlit_mic_recorder import speech_to_text
 
 # ==============================================================================
-# CONFIGURAÇÃO VISUAL FUTURISTA
+# VISUAL CONFIGURATION
 # ==============================================================================
-st.set_page_config(layout="wide", page_title="Sistema de Monitoramento de Feminicídios", page_icon="📊")
+st.set_page_config(
+    layout="wide",
+    page_title="Feminicide Monitoring System",
+    page_icon="📊"
+)
 
 st.markdown("""
     <style>
@@ -21,7 +25,7 @@ st.markdown("""
         section[data-testid="stSidebar"] { background-color: #080808; border-right: 1px solid #222; }
         div[data-testid="stMetricValue"] { color: #00ffcc; text-shadow: 0 0 5px #00ffcc; }
 
-        /* Estilo do Alerta de Políticas Públicas */
+        /* Public policy alert styling */
         .alert-box {
             background-color: #1a0008;
             border: 1px solid #ff0055;
@@ -59,7 +63,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==============================================================================
-# LÓGICA DE MAPEAMENTO GEOPOLÍTICO (14 REGIÕES DO IPECE)
+# GEOPOLITICAL MAPPING LOGIC (14 IPECE REGIONS)
 # ==============================================================================
 def mapear_macroregiao(cidade):
     mapa_regioes = {
@@ -83,10 +87,10 @@ def mapear_macroregiao(cidade):
         if cidade in cidades:
             return regiao
 
-    return "Não Identificada"
+    return "Not Identified"
 
 # ==============================================================================
-# LÓGICA DE EXTRAÇÃO
+# EXTRACTION LOGIC
 # ==============================================================================
 class SmartExtractor:
     def __init__(self):
@@ -107,10 +111,10 @@ class SmartExtractor:
         self.regex_idade_ext = r'(?i)\b([a-z]+(?:\s+e\s+[a-z]+)?)\s+anos\b'
         self.regex_cor = r'(?i)\b(branca|preta|parda|amarela)\b'
         self.regras_causa = [
-            (r'(ex-?companheiro|marido|ciúmes|separação|medida protetiva|doméstica|terminou)', 'Violência Doméstica'),
-            (r'(tráfico|drogas|facção|território|execução|pistolagem|cativeiro|tribunal do crime)', 'Facção/Tráfico'),
-            (r'(racismo|transfobia|homofobia|preconceito|ódio|orientação sexual|misoginia)', 'Preconceito/Ódio'),
-            (r'(latrocínio|assalto|bala perdida|roubo)', 'Latrocínio/Urbana')
+            (r'(ex-?companheiro|marido|ciúmes|separação|medida protetiva|doméstica|terminou)', 'Domestic Violence'),
+            (r'(tráfico|drogas|facção|território|execução|pistolagem|cativeiro|tribunal do crime)', 'Gang/Drug Trafficking'),
+            (r'(racismo|transfobia|homofobia|preconceito|ódio|orientação sexual|misoginia)', 'Bias/Hate Crime'),
+            (r'(latrocínio|assalto|bala perdida|roubo)', 'Robbery/Urban Violence')
         ]
 
     def converter_extenso(self, texto_num):
@@ -118,14 +122,16 @@ class SmartExtractor:
             partes = texto_num.lower().split(' e ')
             soma = sum([self.mapa_numeros[p] for p in partes if p in self.mapa_numeros])
             return soma if soma > 0 else None
-        except: return None
+        except:
+            return None
 
     def processar_texto(self, texto):
         texto_str = str(texto)
 
         data = "N/A"
         match_dt_num = re.search(self.regex_data_num, texto_str)
-        if match_dt_num: data = match_dt_num.group(1).replace('.', '/')
+        if match_dt_num:
+            data = match_dt_num.group(1).replace('.', '/')
         else:
             match_dt_ext = re.search(self.regex_data_ext, texto_str, re.IGNORECASE)
             if match_dt_ext:
@@ -134,24 +140,30 @@ class SmartExtractor:
                 ano = match_dt_ext.group(3)
                 data = f"{dia}/{mes}/{ano}"
 
-        cidade = "Local Desconhecido"
+        cidade = "Unknown Location"
         match_cid = re.search(self.regex_cidade, texto_str)
         if match_cid:
             cand = match_cid.group(1).strip()
-            if cand.lower() not in ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro', 'polícia', 'pefoce', 'dhpp']:
+            if cand.lower() not in [
+                'janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho',
+                'agosto', 'setembro', 'outubro', 'novembro', 'dezembro',
+                'polícia', 'pefoce', 'dhpp'
+            ]:
                 cidade = cand
 
         idade = None
         match_id_num = re.search(self.regex_idade_num, texto_str)
-        if match_id_num: idade = int(match_id_num.group(1))
+        if match_id_num:
+            idade = int(match_id_num.group(1))
         else:
             match_id_ext = re.search(self.regex_idade_ext, texto_str)
-            if match_id_ext: idade = self.converter_extenso(match_id_ext.group(1))
+            if match_id_ext:
+                idade = self.converter_extenso(match_id_ext.group(1))
 
         match_cor = re.search(self.regex_cor, texto_str)
-        cor = match_cor.group(1).lower() if match_cor else "Não informada"
+        cor = match_cor.group(1).lower() if match_cor else "Not informed"
 
-        causa = "Outros/Indeterminado"
+        causa = "Other/Undetermined"
         texto_lower = texto_str.lower()
         for padrao, label in self.regras_causa:
             if re.search(padrao, texto_lower):
@@ -159,82 +171,112 @@ class SmartExtractor:
                 break
 
         return {
-            "DATA": data, "LOCALIDADE": cidade, "IDADE_ESTIMADA": idade,
-            "COR_PELE": cor, "CLASSIFICACAO_CAUSA": causa, "NOTÍCIA_ORIGINAL": texto_str[:100] + "..."
+            "DATE": data,
+            "LOCATION": cidade,
+            "ESTIMATED_AGE": idade,
+            "SKIN_COLOR": cor,
+            "CAUSE_CLASSIFICATION": causa,
+            "ORIGINAL_NEWS": texto_str[:100] + "..."
         }
 
 # ==============================================================================
-# INTERFACE PRINCIPAL
+# MAIN INTERFACE
 # ==============================================================================
 def main():
     col_h1, col_h2 = st.columns([3, 1])
     with col_h1:
-        st.title("Sistema de Monitoramento de Feminicídios // CE")
-        st.caption("Desenvolvido por: Yanna Queiroz | Orientadores: Prof. Helyson Braz, Profa. Thyana Vicente e Profa. Roberta Jeane")
+        st.title("Feminicide Monitoring System // CE")
+        st.caption("Developed by: Yanna Queiroz | Advisors: Prof. Helyson Braz, Profa. Thyana Vicente and Profa. Roberta Jeane")
 
-    st.sidebar.markdown("### Gerar Notícias por:")
-    modo_input = st.sidebar.radio("Fonte de dados:", ("UPLOAD DE ARQUIVO (.CSV)", "INPUT MANUAL / VOZ"), label_visibility="collapsed")
+    st.sidebar.markdown("### Generate News By:")
+    modo_input = st.sidebar.radio(
+        "Data source:",
+        ("FILE UPLOAD (.CSV)", "MANUAL INPUT / VOICE"),
+        label_visibility="collapsed"
+    )
     extractor = SmartExtractor()
 
-    if modo_input == "UPLOAD DE ARQUIVO (.CSV)":
-        uploaded_file = st.sidebar.file_uploader("Carregar Dataset Bruto", type="csv")
+    if modo_input == "FILE UPLOAD (.CSV)":
+        uploaded_file = st.sidebar.file_uploader("Upload Raw Dataset", type="csv")
         if uploaded_file is not None:
             try:
                 df_raw = pd.read_csv(uploaded_file)
                 col_name = df_raw.columns[0]
-                if 'conteudo_noticia' in df_raw.columns: col_name = 'conteudo_noticia'
-                if st.sidebar.button("INICIAR PROCESSAMENTO EM LOTE"):
-                    with st.spinner("ANALISANDO PADRÕES SEMÂNTICOS E GEOPOLÍTICOS..."):
+                if 'conteudo_noticia' in df_raw.columns:
+                    col_name = 'conteudo_noticia'
+                if st.sidebar.button("START BATCH PROCESSING"):
+                    with st.spinner("ANALYZING SEMANTIC AND GEOPOLITICAL PATTERNS..."):
                         dados_extraidos = df_raw[col_name].apply(lambda x: pd.Series(extractor.processar_texto(x)))
                         st.session_state['df_resultado'] = pd.concat([dados_extraidos, df_raw], axis=1)
-            except Exception as e: st.error(f"FALHA: {e}")
+            except Exception as e:
+                st.error(f"ERROR: {e}")
     else:
-        st.subheader("ANÁLISE UNITÁRIA E DE MULTI ENTRADA")
-        st.info("Use ENTER para separar múltiplas notícias. O áudio adicionará novas linhas automaticamente.")
+        st.subheader("UNITARY AND MULTI-ENTRY ANALYSIS")
+        st.info("Use ENTER to separate multiple news items. Audio will add new lines automatically.")
 
-        if 'texto_manual' not in st.session_state: st.session_state['texto_manual'] = ""
+        if 'texto_manual' not in st.session_state:
+            st.session_state['texto_manual'] = ""
+
         c_mic, c_void = st.columns([1, 4])
         with c_mic:
-            st.markdown("**GRAVAR ÁUDIO:**")
+            st.markdown("**RECORD AUDIO:**")
             audio_text = speech_to_text(language='pt-BR', just_once=True, key='voice_recorder')
 
         if audio_text:
-            if st.session_state['texto_manual']: st.session_state['texto_manual'] += "\n" + audio_text
-            else: st.session_state['texto_manual'] = audio_text
+            if st.session_state['texto_manual']:
+                st.session_state['texto_manual'] += "\n" + audio_text
+            else:
+                st.session_state['texto_manual'] = audio_text
 
-        texto_input = st.text_area("Insira os relatórios (separados por ENTER):", height=200, key='texto_manual')
+        texto_input = st.text_area("Insert reports (separated by ENTER):", height=200, key='texto_manual')
 
-        if st.button("CLASSIFICAR DADOS"):
+        if st.button("CLASSIFY DATA"):
             if texto_input:
                 lista_noticias = [t.strip() for t in texto_input.split('\n') if t.strip()]
                 if lista_noticias:
                     resultados = [extractor.processar_texto(noticia) for noticia in lista_noticias]
                     st.session_state['df_resultado'] = pd.DataFrame(resultados)
-                    st.success(f"{len(lista_noticias)} NOTÍCIAS IDENTIFICADAS!")
+                    st.success(f"{len(lista_noticias)} NEWS ITEMS IDENTIFIED!")
 
     if 'df_resultado' in st.session_state and not st.session_state['df_resultado'].empty:
         df_show = st.session_state['df_resultado'].copy()
+
+        # Keep the data itself in Portuguese / original context, but translate the interface.
+        if 'DATA' not in df_show.columns and 'DATE' in df_show.columns:
+            df_show['DATA'] = df_show['DATE']
+        if 'LOCALIDADE' not in df_show.columns and 'LOCATION' in df_show.columns:
+            df_show['LOCALIDADE'] = df_show['LOCATION']
+        if 'IDADE_ESTIMADA' not in df_show.columns and 'ESTIMATED_AGE' in df_show.columns:
+            df_show['IDADE_ESTIMADA'] = df_show['ESTIMATED_AGE']
+        if 'COR_PELE' not in df_show.columns and 'SKIN_COLOR' in df_show.columns:
+            df_show['COR_PELE'] = df_show['SKIN_COLOR']
+        if 'CLASSIFICACAO_CAUSA' not in df_show.columns and 'CAUSE_CLASSIFICATION' in df_show.columns:
+            df_show['CLASSIFICACAO_CAUSA'] = df_show['CAUSE_CLASSIFICATION']
+        if 'NOTÍCIA_ORIGINAL' not in df_show.columns and 'ORIGINAL_NEWS' in df_show.columns:
+            df_show['NOTÍCIA_ORIGINAL'] = df_show['ORIGINAL_NEWS']
 
         df_show['DATA_OBJ'] = pd.to_datetime(df_show['DATA'], dayfirst=True, errors='coerce')
         df_show['ANO_MES'] = df_show['DATA_OBJ'].dt.strftime('%Y-%m')
         df_show['MACROREGIAO'] = df_show['LOCALIDADE'].apply(mapear_macroregiao)
 
-        # --- MÉTRICAS ---
+        # --- METRICS ---
         c1, c2, c3, c4 = st.columns(4)
-        c1.metric("CASOS ANALISADOS", len(df_show))
-        c2.metric("MUNICÍPIOS AFETADOS", df_show['LOCALIDADE'].nunique())
-        c3.metric("IDADE MÉDIA", f"{df_show['IDADE_ESTIMADA'].mean():.1f}")
-        try: c4.metric("MODA CAUSA", df_show['CLASSIFICACAO_CAUSA'].mode()[0])
-        except: pass
+        c1.metric("CASES ANALYZED", len(df_show))
+        c2.metric("AFFECTED MUNICIPALITIES", df_show['LOCALIDADE'].nunique())
+        c3.metric("AVERAGE AGE", f"{df_show['IDADE_ESTIMADA'].mean():.1f}")
+        try:
+            c4.metric("MOST COMMON CAUSE", df_show['CLASSIFICACAO_CAUSA'].mode()[0])
+        except:
+            pass
 
         st.markdown("---")
 
         # ==============================================================================
-        # SISTEMA DE ALERTA COM TOP 5 (RANKING DE ICR)
+        # ALERT SYSTEM WITH TOP 5 (ICR RANKING)
         # ==============================================================================
-        st.markdown("### SISTEMA DE ALERTA DE POLÍTICAS PÚBLICAS")
+        st.markdown("### PUBLIC POLICY ALERT SYSTEM")
 
-        regioes_afetadas = df_show[df_show['MACROREGIAO'] != "Não Identificada"]
+        regioes_afetadas = df_show[df_show['MACROREGIAO'] != "Not Identified"]
         if not regioes_afetadas.empty:
             top5_regioes = regioes_afetadas['MACROREGIAO'].value_counts().head(5)
             total_estado = len(regioes_afetadas)
@@ -249,102 +291,177 @@ def main():
                 r_nome = top5_regioes.index[i]
                 r_casos = top5_regioes.values[i]
                 r_icr = (r_casos / total_estado) * 100
-                # SEM INDENTAÇÃO AQUI!
                 html_outras_regioes += f"""<div class='top5-item'>
 <span class='top5-rank'>#{i+1}</span>
 <strong>{r_nome}</strong> &mdash; ICR: <span style='color:#00ffcc;'>{r_icr:.1f}%</span>
-<span style='font-size:0.85rem;'>({r_casos} casos)</span>
+<span style='font-size:0.85rem;'>({r_casos} cases)</span>
 </div>"""
 
             st.markdown(f"""
 <div class="alert-box">
-<div class="alert-title">⚠️ ZONA DE ALTA CRITICIDADE DETECTADA: {regiao_critica.upper()}</div>
-<div class="index-badge">ÍNDICE DE CONCENTRAÇÃO REGIONAL (ICR): {icr_1:.1f}%</div>
+<div class="alert-title">⚠️ HIGH-CRITICALITY ZONE DETECTED: {regiao_critica.upper()}</div>
+<div class="index-badge">REGIONAL CONCENTRATION INDEX (ICR): {icr_1:.1f}%</div>
 <div class="alert-text">
-O monitoramento identificou que mais de {int(icr_1)}% de todos os casos analisados no Estado estão concentrados nesta Região de Planejamento (<span class="highlight">{total_critica} ocorrências</span>). O polo de maior vulnerabilidade é o município de <span class="highlight">{cidade_critica}</span>.<br><br>
-<strong>DIRETRIZES DE INTERVENÇÃO (FOCO PRIMÁRIO):</strong><br>
-• Instalação/ampliação da <i>Delegacia de Defesa da Mulher (DDM) ou Casa da Mulher</i> em {cidade_critica}.<br>
-• Intensificação tática da <i>Patrulha Maria da Penha</i> em todo o {regiao_critica}.
+Monitoring identified that more than {int(icr_1)}% of all analyzed cases in the state are concentrated in this planning region (<span class="highlight">{total_critica} occurrences</span>). The main vulnerability hotspot is the municipality of <span class="highlight">{cidade_critica}</span>.<br><br>
+<strong>INTERVENTION GUIDELINES (PRIMARY FOCUS):</strong><br>
+• Installation/expansion of a <i>Women’s Police Station (DDM) or Women’s House</i> in {cidade_critica}.<br>
+• Tactical strengthening of the <i>Maria da Penha Patrol</i> throughout {regiao_critica}.
 </div>
 <div class="top5-container">
-<div style="color: #ff0055; font-weight: bold; margin-bottom: 8px;">MONITORAMENTO DE RISCO: TOP 5 REGIÕES</div>
+<div style="color: #ff0055; font-weight: bold; margin-bottom: 8px;">RISK MONITORING: TOP 5 REGIONS</div>
 {html_outras_regioes}
 </div>
 </div>
 """, unsafe_allow_html=True)
         else:
-            st.info("Dados regionais insuficientes para calcular os índices de criticidade.")
+            st.info("Insufficient regional data to calculate criticality indices.")
 
         st.markdown("---")
-        st.markdown("### DASHBOARD ANALÍTICO")
+        st.markdown("### ANALYTICAL DASHBOARD")
 
-        # --- LINHA 1: CAUSAS E CIDADES ---
+        # --- ROW 1: CAUSES AND CITIES ---
         col_g1, col_g2 = st.columns(2)
         with col_g1:
-            st.caption("DISTRIBUIÇÃO POR CAUSA / MOTIVAÇÃO")
-            fig_pie = px.pie(df_show, names='CLASSIFICACAO_CAUSA', hole=0.6, color_discrete_sequence=['#ff0055', '#00ffcc', '#ffffff', '#444444'], template="plotly_dark")
+            st.caption("DISTRIBUTION BY CAUSE / MOTIVE")
+            fig_pie = px.pie(
+                df_show,
+                names='CLASSIFICACAO_CAUSA',
+                hole=0.6,
+                color_discrete_sequence=['#ff0055', '#00ffcc', '#ffffff', '#444444'],
+                template="plotly_dark"
+            )
             fig_pie.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
             st.plotly_chart(fig_pie, use_container_width=True)
+
         with col_g2:
-            st.caption("TOP 10 CIDADES COM MAIS OCORRÊNCIAS")
+            st.caption("TOP 10 CITIES WITH THE MOST OCCURRENCES")
             top_cidades = df_show['LOCALIDADE'].value_counts().head(10).reset_index()
-            top_cidades.columns = ['Cidade', 'Casos']
-            fig_bar = px.bar(top_cidades, x='Cidade', y='Casos', color='Casos', color_continuous_scale=['#440022', '#ff0055'], template="plotly_dark")
+            top_cidades.columns = ['City', 'Cases']
+            fig_bar = px.bar(
+                top_cidades,
+                x='City',
+                y='Cases',
+                color='Cases',
+                color_continuous_scale=['#440022', '#ff0055'],
+                template="plotly_dark"
+            )
             fig_bar.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
             st.plotly_chart(fig_bar, use_container_width=True)
 
-        # --- LINHA 2: TEMPORAL E REGIÕES DE PLANEJAMENTO ---
+        # --- ROW 2: TEMPORAL AND PLANNING REGIONS ---
         col_g3, col_g4 = st.columns(2)
         with col_g3:
-            st.caption("EVOLUÇÃO TEMPORAL (MÊS/ANO)")
-            timeline_df = df_show.groupby('ANO_MES').size().reset_index(name='QUANTIDADE').sort_values('ANO_MES')
+            st.caption("TIME EVOLUTION (MONTH/YEAR)")
+            timeline_df = df_show.groupby('ANO_MES').size().reset_index(name='QUANTITY').sort_values('ANO_MES')
             if not timeline_df.empty:
-                fig_line = px.area(timeline_df, x='ANO_MES', y='QUANTIDADE', markers=True, color_discrete_sequence=['#00ffcc'], template="plotly_dark")
-                fig_line.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", xaxis_title=None)
+                fig_line = px.area(
+                    timeline_df,
+                    x='ANO_MES',
+                    y='QUANTITY',
+                    markers=True,
+                    color_discrete_sequence=['#00ffcc'],
+                    template="plotly_dark"
+                )
+                fig_line.update_layout(
+                    paper_bgcolor="rgba(0,0,0,0)",
+                    plot_bgcolor="rgba(0,0,0,0)",
+                    xaxis_title=None
+                )
                 st.plotly_chart(fig_line, use_container_width=True)
 
         with col_g4:
-            st.caption("INCIDÊNCIA POR REGIÃO DE PLANEJAMENTO (IPECE)")
+            st.caption("INCIDENCE BY PLANNING REGION (IPECE)")
             regioes_count = df_show['MACROREGIAO'].value_counts().reset_index()
-            regioes_count.columns = ['Região de Planejamento', 'Casos']
-            fig_macro = px.bar(regioes_count, x='Casos', y='Região de Planejamento', orientation='h', color='Casos', color_continuous_scale=['#440022', '#ff0055'], template="plotly_dark")
-            fig_macro.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", yaxis={'categoryorder':'total ascending'})
+            regioes_count.columns = ['Planning Region', 'Cases']
+            fig_macro = px.bar(
+                regioes_count,
+                x='Cases',
+                y='Planning Region',
+                orientation='h',
+                color='Cases',
+                color_continuous_scale=['#440022', '#ff0055'],
+                template="plotly_dark"
+            )
+            fig_macro.update_layout(
+                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(0,0,0,0)",
+                yaxis={'categoryorder': 'total ascending'}
+            )
             st.plotly_chart(fig_macro, use_container_width=True)
 
-        # --- LINHA 3: DEMOGRAFIA ---
-        st.markdown("### PERFIL DAS VÍTIMAS")
+        # --- ROW 3: DEMOGRAPHICS ---
+        st.markdown("### VICTIM PROFILE")
         col_d1, col_d2 = st.columns(2)
+
         with col_d1:
-            st.caption("COR DA PELE IDENTIFICADA")
-            df_cor = df_show['COR_PELE'].fillna('Não informada').value_counts().reset_index()
-            df_cor.columns = ['Cor', 'Total']
-            fig_skin = px.bar(df_cor, x='Total', y='Cor', orientation='h', color='Total', color_continuous_scale=['#333333', '#e0e0e0'], template="plotly_dark")
+            st.caption("IDENTIFIED SKIN COLOR")
+            df_cor = df_show['COR_PELE'].fillna('Not informed').value_counts().reset_index()
+            df_cor.columns = ['Color', 'Total']
+            fig_skin = px.bar(
+                df_cor,
+                x='Total',
+                y='Color',
+                orientation='h',
+                color='Total',
+                color_continuous_scale=['#333333', '#e0e0e0'],
+                template="plotly_dark"
+            )
             fig_skin.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
             st.plotly_chart(fig_skin, use_container_width=True)
+
         with col_d2:
-            st.caption("DISTRIBUIÇÃO POR IDADE")
+            st.caption("AGE DISTRIBUTION")
             df_idade = df_show.dropna(subset=['IDADE_ESTIMADA'])
             if not df_idade.empty:
-                fig_hist = px.histogram(df_idade, x="IDADE_ESTIMADA", nbins=15, color_discrete_sequence=['#ff0055'], template="plotly_dark")
+                fig_hist = px.histogram(
+                    df_idade,
+                    x="IDADE_ESTIMADA",
+                    nbins=15,
+                    color_discrete_sequence=['#ff0055'],
+                    template="plotly_dark"
+                )
                 fig_hist.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", bargap=0.1)
                 st.plotly_chart(fig_hist, use_container_width=True)
 
-        # --- TABELA ---
-        st.markdown("### DADOS BRUTOS")
-        st.dataframe(df_show[['DATA', 'LOCALIDADE', 'MACROREGIAO', 'IDADE_ESTIMADA', 'COR_PELE', 'CLASSIFICACAO_CAUSA', 'NOTÍCIA_ORIGINAL']], use_container_width=True, height=300)
+        # --- TABLE ---
+        st.markdown("### RAW DATA")
+        df_tabela = df_show[[
+            'DATA', 'LOCALIDADE', 'MACROREGIAO', 'IDADE_ESTIMADA',
+            'COR_PELE', 'CLASSIFICACAO_CAUSA', 'NOTÍCIA_ORIGINAL'
+        ]].copy()
+
+        df_tabela.columns = [
+            'Date', 'Location', 'Planning Region', 'Estimated Age',
+            'Skin Color', 'Cause Classification', 'Original News'
+        ]
+
+        st.dataframe(df_tabela, use_container_width=True, height=300)
 
         # --- DOWNLOADS ---
         col_dl1, col_dl2 = st.columns(2)
+
         csv = df_show.to_csv(index=False).encode('utf-8-sig')
-        col_dl1.download_button("[DOWNLOAD .CSV]", csv, 'femicide_data.csv', 'text/csv')
+        col_dl1.download_button("DOWNLOAD .CSV", csv, 'femicide_data.csv', 'text/csv')
+
         buffer = io.BytesIO()
-        with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer: df_show.to_excel(writer, index=False)
-        col_dl2.download_button("[DOWNLOAD .XLSX]", buffer, 'femicide_data.xlsx', 'application/vnd.ms-excel')
+        with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+            df_show.to_excel(writer, index=False)
+        buffer.seek(0)
+
+        col_dl2.download_button(
+            "DOWNLOAD .XLSX",
+            buffer,
+            'femicide_data.xlsx',
+            'application/vnd.ms-excel'
+        )
 
     st.markdown("---")
     col_p1, col_p2, col_p3 = st.columns([1, 2, 1])
     with col_p2:
-        st.markdown("<h3 style='text-align: center; color: #444; font-size: 14px; margin-bottom: 10px;'>APOIO E PATROCINADORES</h3>", unsafe_allow_html=True)
+        st.markdown(
+            "<h3 style='text-align: center; color: #444; font-size: 14px; margin-bottom: 10px;'>SUPPORT AND SPONSORS</h3>",
+            unsafe_allow_html=True
+        )
         st.image("https://imgur.com/xLFPmmy.png", use_container_width=True)
 
 if __name__ == "__main__":
