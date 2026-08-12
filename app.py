@@ -199,9 +199,10 @@ def main():
         label_visibility="collapsed"
     )
 
-    if st.sidebar.button("Carregar 10 notícias de teste"):
-        st.session_state['modo_input'] = "ENTRADA MANUAL / VOZ"
-        st.session_state['texto_manual'] = (
+    extractor = SmartExtractor()
+
+    if modo_input == "ENTRADA MANUAL / VOZ":
+        sample_text = (
             "Fortaleza, 12/03/2024 — 34 anos, parda, relato de ex-companheiro com ciúmes e medida protetiva negada após várias tentativas de polícia.\n"
             "Em 5 de abril de 2024, Sobral registrou ameaça contra uma mulher de 28 anos, branca, motivada por separação, e a família pediu ajuda urgente.\n"
             "Uma jovem de 23 anos, preta, foi morta em Juazeiro do Norte no dia 18 de junho de 2024, em caso que envolve violência doméstica pelo ex-marido.\n"
@@ -214,9 +215,6 @@ def main():
             "Viçosa do Ceará, 09/10/2024: 32 anos, preta, desentendimento doméstico virou homicídio durante briga com o parceiro."
         )
 
-    extractor = SmartExtractor()
-
-    if modo_input == "ENTRADA MANUAL / VOZ":
         st.subheader("ANÁLISE ÚNICA OU MULTI-ENTRADA")
         st.info("Use ENTER para separar várias notícias. O áudio adiciona novas linhas automaticamente.")
 
@@ -235,6 +233,9 @@ def main():
                 st.session_state['texto_manual'] = audio_text
 
         texto_input = st.text_area("Insira relatórios (separados por ENTER):", height=200, key='texto_manual')
+
+        if st.button("Carregar 10 notícias de teste"):
+            st.session_state['texto_manual'] = sample_text
 
         if st.button("CLASSIFICAR DADOS"):
             if texto_input:
