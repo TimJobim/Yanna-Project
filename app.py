@@ -65,29 +65,34 @@ st.markdown("""
 # ==============================================================================
 # GEOPOLITICAL MAPPING LOGIC (14 IPECE REGIONS)
 # ==============================================================================
-def mapear_macroregiao(cidade):
-    mapa_regioes = {
-        "Cariri": ["Abaiara", "Altaneira", "Antonina do Norte", "Araripe", "Assaré", "Aurora", "Barbalha", "Barro", "Brejo Santo", "Campos Sales", "Caririaçu", "Crato", "Farias Brito", "Granjeiro", "Jardim", "Jati", "Juazeiro do Norte", "Lavras da Mangabeira", "Mauriti", "Milagres", "Missão Velha", "Nova Olinda", "Penaforte", "Porteiras", "Potengi", "Salitre", "Santana do Cariri", "Tarrafas", "Várzea Alegre"],
-        "Centro Sul": ["Acopiara", "Baixio", "Cariús", "Catarina", "Cedro", "Icó", "Iguatu", "Ipaumirim", "Jucás", "Orós", "Quixelô", "Saboeiro", "Umari"],
-        "Grande Fortaleza": ["Aquiraz", "Cascavel", "Caucaia", "Chorozinho", "Eusébio", "Fortaleza", "Guaiúba", "Horizonte", "Itaitinga", "Maracanaú", "Maranguape", "Pacajus", "Pacatuba", "Paracuru", "Paraipaba", "Pindoretama", "São Gonçalo do Amarante", "São Luís do Curu", "Trairi"],
-        "Litoral Leste": ["Aracati", "Beberibe", "Fortim", "Icapuí", "Itaiçaba", "Jaguaruana"],
-        "Litoral Norte": ["Acaraú", "Barroquinha", "Bela Cruz", "Camocim", "Chaval", "Cruz", "Granja", "Itarema", "Jijoca de Jericoacoara", "Marco", "Martinópole", "Morrinhos", "Uruoca"],
-        "Litoral Oeste / Vale do Curu": ["Amontada", "Apuiarés", "General Sampaio", "Irauçuba", "Itapagé", "Itapipoca", "Miraíma", "Pentecoste", "Tejuçuoca", "Tururu", "Umirim", "Uruburetama"],
-        "Maciço de Baturité": ["Acarape", "Aracoiaba", "Aratuba", "Barreira", "Baturité", "Capistrano", "Guaramiranga", "Itapiúna", "Mulungu", "Ocara", "Pacoti", "Palmácia", "Redenção"],
-        "Serra da Ibiapaba": ["Carnaubal", "Croatá", "Guaraciaba do Norte", "Ibiapina", "Ipu", "São Benedito", "Tianguá", "Ubajara", "Viçosa do Ceará"],
-        "Sertão Central": ["Banabuiú", "Choró", "Deputado Irapuan Pinheiro", "Ibaretama", "Ibicuitinga", "Milhã", "Mombaça", "Pedra Branca", "Piquet Carneiro", "Quixadá", "Quixeramobim", "Senador Pompeu", "Solonópole"],
-        "Sertão de Canindé": ["Boa Viagem", "Canindé", "Caridade", "Itatira", "Madalena", "Paramoti"],
-        "Sertão de Sobral": ["Alcântaras", "Cariré", "Coreaú", "Forquilha", "Frecheirinha", "Graça", "Groaíras", "Massapê", "Meruoca", "Moraújo", "Mucambo", "Pacujá", "Pires Ferreira", "Reriutaba", "Santana do Acaraú", "Senador Sá", "Sobral", "Varjota"],
-        "Sertão dos Crateús": ["Ararendá", "Catunda", "Crateús", "Hidrolândia", "Independência", "Ipaporanga", "Ipueiras", "Monsenhor Tabosa", "Nova Russas", "Novo Oriente", "Poranga", "Santa Quitéria", "Tamboril"],
-        "Sertão dos Inhamuns": ["Aiuaba", "Arneiroz", "Parambu", "Quiterianópolis", "Tauá"],
-        "Vale do Jaguaribe": ["Alto Santo", "Ereré", "Iracema", "Jaguaretama", "Jaguaribara", "Jaguaribe", "Limoeiro do Norte", "Morada Nova", "Palhano", "Pereiro", "Potiretama", "Quixeré", "Russas", "São João do Jaguaribe", "Tabuleiro do Norte"]
-    }
+MAPA_REGIOES = {
+    "Cariri": ["Abaiara", "Altaneira", "Antonina do Norte", "Araripe", "Assaré", "Aurora", "Barbalha", "Barro", "Brejo Santo", "Campos Sales", "Caririaçu", "Crato", "Farias Brito", "Granjeiro", "Jardim", "Jati", "Juazeiro do Norte", "Lavras da Mangabeira", "Mauriti", "Milagres", "Missão Velha", "Nova Olinda", "Penaforte", "Porteiras", "Potengi", "Salitre", "Santana do Cariri", "Tarrafas", "Várzea Alegre"],
+    "Centro Sul": ["Acopiara", "Baixio", "Cariús", "Catarina", "Cedro", "Icó", "Iguatu", "Ipaumirim", "Jucás", "Orós", "Quixelô", "Saboeiro", "Umari"],
+    "Grande Fortaleza": ["Aquiraz", "Cascavel", "Caucaia", "Chorozinho", "Eusébio", "Fortaleza", "Guaiúba", "Horizonte", "Itaitinga", "Maracanaú", "Maranguape", "Pacajus", "Pacatuba", "Paracuru", "Paraipaba", "Pindoretama", "São Gonçalo do Amarante", "São Luís do Curu", "Trairi"],
+    "Litoral Leste": ["Aracati", "Beberibe", "Fortim", "Icapuí", "Itaiçaba", "Jaguaruana"],
+    "Litoral Norte": ["Acaraú", "Barroquinha", "Bela Cruz", "Camocim", "Chaval", "Cruz", "Granja", "Itarema", "Jijoca de Jericoacoara", "Marco", "Martinópole", "Morrinhos", "Uruoca"],
+    "Litoral Oeste / Vale do Curu": ["Amontada", "Apuiarés", "General Sampaio", "Irauçuba", "Itapagé", "Itapipoca", "Miraíma", "Pentecoste", "Tejuçuoca", "Tururu", "Umirim", "Uruburetama"],
+    "Maciço de Baturité": ["Acarape", "Aracoiaba", "Aratuba", "Barreira", "Baturité", "Capistrano", "Guaramiranga", "Itapiúna", "Mulungu", "Ocara", "Pacoti", "Palmácia", "Redenção"],
+    "Serra da Ibiapaba": ["Carnaubal", "Croatá", "Guaraciaba do Norte", "Ibiapina", "Ipu", "São Benedito", "Tianguá", "Ubajara", "Viçosa do Ceará"],
+    "Sertão Central": ["Banabuiú", "Choró", "Deputado Irapuan Pinheiro", "Ibaretama", "Ibicuitinga", "Milhã", "Mombaça", "Pedra Branca", "Piquet Carneiro", "Quixadá", "Quixeramobim", "Senador Pompeu", "Solonópole"],
+    "Sertão de Canindé": ["Boa Viagem", "Canindé", "Caridade", "Itatira", "Madalena", "Paramoti"],
+    "Sertão de Sobral": ["Alcântaras", "Cariré", "Coreaú", "Forquilha", "Frecheirinha", "Graça", "Groaíras", "Massapê", "Meruoca", "Moraújo", "Mucambo", "Pacujá", "Pires Ferreira", "Reriutaba", "Santana do Acaraú", "Senador Sá", "Sobral", "Varjota"],
+    "Sertão dos Crateús": ["Ararendá", "Catunda", "Crateús", "Hidrolândia", "Independência", "Ipaporanga", "Ipueiras", "Monsenhor Tabosa", "Nova Russas", "Novo Oriente", "Poranga", "Santa Quitéria", "Tamboril"],
+    "Sertão dos Inhamuns": ["Aiuaba", "Arneiroz", "Parambu", "Quiterianópolis", "Tauá"],
+    "Vale do Jaguaribe": ["Alto Santo", "Ereré", "Iracema", "Jaguaretama", "Jaguaribara", "Jaguaribe", "Limoeiro do Norte", "Morada Nova", "Palhano", "Pereiro", "Potiretama", "Quixeré", "Russas", "São João do Jaguaribe", "Tabuleiro do Norte"]
+}
 
-    for regiao, cidades in mapa_regioes.items():
+# Create a master list of all cities sorted by length descending to match compound names first
+TODAS_CIDADES = []
+for cidades in MAPA_REGIOES.values():
+    TODAS_CIDADES.extend(cidades)
+TODAS_CIDADES.sort(key=len, reverse=True)
+
+def mapear_macroregiao(cidade):
+    for regiao, cidades in MAPA_REGIOES.items():
         if cidade in cidades:
             return regiao
-
-    return "Not Identified"
+    return "Não Identificada"
 
 # ==============================================================================
 # EXTRACTION LOGIC
@@ -104,17 +109,18 @@ class SmartExtractor:
             'julho': '07', 'agosto': '08', 'setembro': '09', 'outubro': '10', 'novembro': '11', 'dezembro': '12'
         }
 
-        self.regex_cidade = r'(?:em|no|na|município de|cidade de|região de|LOCAL:|Comarca de)\s+([A-ZÁ-Ü][a-zbxà-ü]+(?:\s(?:do|da|de|e)\s[A-ZÁ-Ü][a-zà-ü]+)*(?:\s[A-ZÁ-Ü][a-zà-ü]+)?)'
         self.regex_data_num = r'(\d{2}[/.]\d{2}[/.]\d{2,4})'
         self.regex_data_ext = r'(\d{1,2})\s+de\s+([a-zA-Zç]+)\s+de\s+(\d{4})'
         self.regex_idade_num = r'(?i)(\d{1,2})\s?anos'
         self.regex_idade_ext = r'(?i)\b([a-z]+(?:\s+e\s+[a-z]+)?)\s+anos\b'
         self.regex_cor = r'(?i)\b(branca|preta|parda|amarela)\b'
+        
+        # Changed rules values to Portuguese pt-br
         self.regras_causa = [
-            (r'(ex-?companheiro|marido|ciúmes|separação|medida protetiva|doméstica|terminou)', 'Domestic Violence'),
-            (r'(tráfico|drogas|facção|território|execução|pistolagem|cativeiro|tribunal do crime)', 'Gang/Drug Trafficking'),
-            (r'(racismo|transfobia|homofobia|preconceito|ódio|orientação sexual|misoginia)', 'Bias/Hate Crime'),
-            (r'(latrocínio|assalto|bala perdida|roubo)', 'Robbery/Urban Violence')
+            (r'(ex-?companheiro|marido|ciúmes|separação|medida protetiva|doméstica|terminou)', 'Violência Doméstica'),
+            (r'(tráfico|drogas|facção|território|execução|pistolagem|cativeiro|tribunal do crime)', 'Tráfico/Facção'),
+            (r'(racismo|transfobia|homofobia|preconceito|ódio|orientação sexual|misoginia)', 'Crime de Ódio/Preconceito'),
+            (r'(latrocínio|assalto|bala perdida|roubo)', 'Latrocínio/Violência Urbana')
         ]
 
     def converter_extenso(self, texto_num):
@@ -140,16 +146,14 @@ class SmartExtractor:
                 ano = match_dt_ext.group(3)
                 data = f"{dia}/{mes}/{ano}"
 
-        cidade = "Unknown Location"
-        match_cid = re.search(self.regex_cidade, texto_str)
-        if match_cid:
-            cand = match_cid.group(1).strip()
-            if cand.lower() not in [
-                'janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho',
-                'agosto', 'setembro', 'outubro', 'novembro', 'dezembro',
-                'polícia', 'pefoce', 'dhpp'
-            ]:
-                cidade = cand
+        # Improved city matching: checks against the full Ceará list dynamically
+        cidade = "Local Desconhecido"
+        for cid in TODAS_CIDADES:
+            # Negative lookbehinds/lookaheads to ensure we are matching full words only
+            padrao = r'(?<![a-zA-ZÀ-ÿ])' + re.escape(cid) + r'(?![a-zA-ZÀ-ÿ])'
+            if re.search(padrao, texto_str, re.IGNORECASE):
+                cidade = cid
+                break
 
         idade = None
         match_id_num = re.search(self.regex_idade_num, texto_str)
@@ -161,22 +165,23 @@ class SmartExtractor:
                 idade = self.converter_extenso(match_id_ext.group(1))
 
         match_cor = re.search(self.regex_cor, texto_str)
-        cor = match_cor.group(1).lower() if match_cor else "Not informed"
+        cor = match_cor.group(1).lower() if match_cor else "Não informada"
 
-        causa = "Other/Undetermined"
+        causa = "Outros/Não Determinado"
         texto_lower = texto_str.lower()
         for padrao, label in self.regras_causa:
             if re.search(padrao, texto_lower):
                 causa = label
                 break
 
+        # Output columns directly in Portuguese to match UI logic
         return {
-            "DATE": data,
-            "LOCATION": cidade,
-            "ESTIMATED_AGE": idade,
-            "SKIN_COLOR": cor,
-            "CAUSE_CLASSIFICATION": causa,
-            "ORIGINAL_NEWS": texto_str[:100] + "..."
+            "DATA": data,
+            "LOCALIDADE": cidade,
+            "IDADE_ESTIMADA": idade,
+            "COR_PELE": cor,
+            "CLASSIFICACAO_CAUSA": causa,
+            "NOTÍCIA_ORIGINAL": texto_str[:100] + "..."
         }
 
 # ==============================================================================
@@ -226,7 +231,6 @@ def main():
             st.markdown("**GRAVAR ÁUDIO:**")
             audio_text = speech_to_text(language='pt-BR', just_once=True, key='voice_recorder')
 
-            # Botão de teste ao lado do gravador (estilo similar ao botão principal)
             if st.button("Carregar 10 notícias de teste", key='btn_sample'):
                 st.session_state['texto_manual'] = sample_text
 
@@ -263,20 +267,6 @@ def main():
     if 'df_resultado' in st.session_state and not st.session_state['df_resultado'].empty:
         df_show = st.session_state['df_resultado'].copy()
 
-        # Keep the data itself in Portuguese / original context, but translate the interface.
-        if 'DATA' not in df_show.columns and 'DATE' in df_show.columns:
-            df_show['DATA'] = df_show['DATE']
-        if 'LOCALIDADE' not in df_show.columns and 'LOCATION' in df_show.columns:
-            df_show['LOCALIDADE'] = df_show['LOCATION']
-        if 'IDADE_ESTIMADA' not in df_show.columns and 'ESTIMATED_AGE' in df_show.columns:
-            df_show['IDADE_ESTIMADA'] = df_show['ESTIMATED_AGE']
-        if 'COR_PELE' not in df_show.columns and 'SKIN_COLOR' in df_show.columns:
-            df_show['COR_PELE'] = df_show['SKIN_COLOR']
-        if 'CLASSIFICACAO_CAUSA' not in df_show.columns and 'CAUSE_CLASSIFICATION' in df_show.columns:
-            df_show['CLASSIFICACAO_CAUSA'] = df_show['CAUSE_CLASSIFICATION']
-        if 'NOTÍCIA_ORIGINAL' not in df_show.columns and 'ORIGINAL_NEWS' in df_show.columns:
-            df_show['NOTÍCIA_ORIGINAL'] = df_show['ORIGINAL_NEWS']
-
         df_show['DATA_OBJ'] = pd.to_datetime(df_show['DATA'], dayfirst=True, errors='coerce')
         df_show['ANO_MES'] = df_show['DATA_OBJ'].dt.strftime('%Y-%m')
         df_show['MACROREGIAO'] = df_show['LOCALIDADE'].apply(mapear_macroregiao)
@@ -298,7 +288,7 @@ def main():
         # ==============================================================================
         st.markdown("### SISTEMA DE ALERTA DE POLÍTICAS PÚBLICAS")
 
-        regioes_afetadas = df_show[df_show['MACROREGIAO'] != "Not Identified"]
+        regioes_afetadas = df_show[df_show['MACROREGIAO'] != "Não Identificada"]
         if not regioes_afetadas.empty:
             top5_regioes = regioes_afetadas['MACROREGIAO'].value_counts().head(5)
             total_estado = len(regioes_afetadas)
@@ -392,7 +382,8 @@ O monitoramento identificou que mais de {int(icr_1)}% de todos os casos analisad
                 fig_line.update_layout(
                     paper_bgcolor="rgba(0,0,0,0)",
                     plot_bgcolor="rgba(0,0,0,0)",
-                    xaxis_title=None
+                    xaxis_title='Período',
+                    yaxis_title='Quantidade'
                 )
                 st.plotly_chart(fig_line, use_container_width=True)
 
@@ -454,7 +445,13 @@ O monitoramento identificou que mais de {int(icr_1)}% de todos os casos analisad
                     color_discrete_sequence=['#ff0055'],
                     template="plotly_dark"
                 )
-                fig_hist.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", bargap=0.1)
+                fig_hist.update_layout(
+                    paper_bgcolor="rgba(0,0,0,0)",
+                    plot_bgcolor="rgba(0,0,0,0)",
+                    bargap=0.1,
+                    xaxis_title='Idade Estimada',
+                    yaxis_title='Contagem'
+                )
                 st.plotly_chart(fig_hist, use_container_width=True)
 
         # --- TABLE ---
@@ -475,7 +472,7 @@ O monitoramento identificou que mais de {int(icr_1)}% de todos os casos analisad
         col_dl1, col_dl2 = st.columns(2)
 
         csv = df_show.to_csv(index=False).encode('utf-8-sig')
-        col_dl1.download_button("BAIXAR .CSV", csv, 'femicide_data.csv', 'text/csv')
+        col_dl1.download_button("BAIXAR .CSV", csv, 'dados_feminicidio.csv', 'text/csv')
 
         buffer = io.BytesIO()
         with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
@@ -485,7 +482,7 @@ O monitoramento identificou que mais de {int(icr_1)}% de todos os casos analisad
         col_dl2.download_button(
             "BAIXAR .XLSX",
             buffer,
-            'femicide_data.xlsx',
+            'dados_feminicidio.xlsx',
             'application/vnd.ms-excel'
         )
 
