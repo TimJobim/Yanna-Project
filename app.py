@@ -10,7 +10,7 @@ from streamlit_mic_recorder import speech_to_text
 # ==============================================================================
 st.set_page_config(
     layout="wide",
-    page_title="Feminicide Monitoring System",
+    page_title="Sistema de Monitoramento de Feminicídio",
     page_icon="📊"
 )
 
@@ -185,41 +185,41 @@ class SmartExtractor:
 def main():
     col_h1, col_h2 = st.columns([3, 1])
     with col_h1:
-        st.title("Feminicide Monitoring System // CE")
-        st.caption("Developed by: Yanna Queiroz | Advisors: Prof. Helyson Braz, Profa. Thyana Vicente and Profa. Roberta Jeane")
+        st.title("Sistema de Monitoramento de Feminicídio do Ceará")
+        st.caption("Desenvolvido por: Yanna Queiroz | Orientadores: Prof. Helyson Braz e Profa. Ingrid Cunha")
 
-    st.sidebar.markdown("### Generate News By:")
+    st.sidebar.markdown("### Gerar notícias por:")
     modo_input = st.sidebar.radio(
-        "Data source:",
-        ("FILE UPLOAD (.CSV)", "MANUAL INPUT / VOICE"),
+        "Fonte de dados:",
+        ("UPLOAD DE ARQUIVO (.CSV)", "ENTRADA MANUAL / VOZ"),
         label_visibility="collapsed"
     )
     extractor = SmartExtractor()
 
     if modo_input == "FILE UPLOAD (.CSV)":
-        uploaded_file = st.sidebar.file_uploader("Upload Raw Dataset", type="csv")
+        uploaded_file = st.sidebar.file_uploader("Envie o dataset bruto", type="csv")
         if uploaded_file is not None:
             try:
                 df_raw = pd.read_csv(uploaded_file)
                 col_name = df_raw.columns[0]
                 if 'conteudo_noticia' in df_raw.columns:
                     col_name = 'conteudo_noticia'
-                if st.sidebar.button("START BATCH PROCESSING"):
-                    with st.spinner("ANALYZING SEMANTIC AND GEOPOLITICAL PATTERNS..."):
+                if st.sidebar.button("INICIAR PROCESSAMENTO EM LOTE"):
+                    with st.spinner("ANALISANDO PADRÕES SEMÂNTICOS E GEOPOLÍTICOS..."):
                         dados_extraidos = df_raw[col_name].apply(lambda x: pd.Series(extractor.processar_texto(x)))
                         st.session_state['df_resultado'] = pd.concat([dados_extraidos, df_raw], axis=1)
             except Exception as e:
-                st.error(f"ERROR: {e}")
+                st.error(f"ERRO: {e}")
     else:
-        st.subheader("UNITARY AND MULTI-ENTRY ANALYSIS")
-        st.info("Use ENTER to separate multiple news items. Audio will add new lines automatically.")
+        st.subheader("ANÁLISE ÚNICA OU MULTI-ENTRADA")
+        st.info("Use ENTER para separar várias notícias. O áudio adiciona novas linhas automaticamente.")
 
         if 'texto_manual' not in st.session_state:
             st.session_state['texto_manual'] = ""
 
         c_mic, c_void = st.columns([1, 4])
         with c_mic:
-            st.markdown("**RECORD AUDIO:**")
+            st.markdown("**GRAVAR ÁUDIO:**")
             audio_text = speech_to_text(language='pt-BR', just_once=True, key='voice_recorder')
 
         if audio_text:
@@ -228,15 +228,15 @@ def main():
             else:
                 st.session_state['texto_manual'] = audio_text
 
-        texto_input = st.text_area("Insert reports (separated by ENTER):", height=200, key='texto_manual')
+        texto_input = st.text_area("Insira relatórios (separados por ENTER):", height=200, key='texto_manual')
 
-        if st.button("CLASSIFY DATA"):
+        if st.button("CLASSIFICAR DADOS"):
             if texto_input:
                 lista_noticias = [t.strip() for t in texto_input.split('\n') if t.strip()]
                 if lista_noticias:
                     resultados = [extractor.processar_texto(noticia) for noticia in lista_noticias]
                     st.session_state['df_resultado'] = pd.DataFrame(resultados)
-                    st.success(f"{len(lista_noticias)} NEWS ITEMS IDENTIFIED!")
+                    st.success(f"{len(lista_noticias)} notícias identificadas!")
 
     if 'df_resultado' in st.session_state and not st.session_state['df_resultado'].empty:
         df_show = st.session_state['df_resultado'].copy()
@@ -261,11 +261,11 @@ def main():
 
         # --- METRICS ---
         c1, c2, c3, c4 = st.columns(4)
-        c1.metric("CASES ANALYZED", len(df_show))
-        c2.metric("AFFECTED MUNICIPALITIES", df_show['LOCALIDADE'].nunique())
-        c3.metric("AVERAGE AGE", f"{df_show['IDADE_ESTIMADA'].mean():.1f}")
+        c1.metric("CASOS ANALISADOS", len(df_show))
+        c2.metric("MUNICÍPIOS AFETADOS", df_show['LOCALIDADE'].nunique())
+        c3.metric("IDADE MÉDIA", f"{df_show['IDADE_ESTIMADA'].mean():.1f}")
         try:
-            c4.metric("MOST COMMON CAUSE", df_show['CLASSIFICACAO_CAUSA'].mode()[0])
+            c4.metric("CAUSA MAIS COMUM", df_show['CLASSIFICACAO_CAUSA'].mode()[0])
         except:
             pass
 
@@ -274,7 +274,7 @@ def main():
         # ==============================================================================
         # ALERT SYSTEM WITH TOP 5 (ICR RANKING)
         # ==============================================================================
-        st.markdown("### PUBLIC POLICY ALERT SYSTEM")
+        st.markdown("### SISTEMA DE ALERTA DE POLÍTICAS PÚBLICAS")
 
         regioes_afetadas = df_show[df_show['MACROREGIAO'] != "Not Identified"]
         if not regioes_afetadas.empty:
@@ -294,35 +294,35 @@ def main():
                 html_outras_regioes += f"""<div class='top5-item'>
 <span class='top5-rank'>#{i+1}</span>
 <strong>{r_nome}</strong> &mdash; ICR: <span style='color:#00ffcc;'>{r_icr:.1f}%</span>
-<span style='font-size:0.85rem;'>({r_casos} cases)</span>
+<span style='font-size:0.85rem;'>({r_casos} casos)</span>
 </div>"""
 
             st.markdown(f"""
 <div class="alert-box">
-<div class="alert-title">⚠️ HIGH-CRITICALITY ZONE DETECTED: {regiao_critica.upper()}</div>
-<div class="index-badge">REGIONAL CONCENTRATION INDEX (ICR): {icr_1:.1f}%</div>
+<div class="alert-title">⚠️ ZONA DE ALTA CRITICIDADE DETECTADA: {regiao_critica.upper()}</div>
+<div class="index-badge">ÍNDICE DE CONCENTRAÇÃO REGIONAL (ICR): {icr_1:.1f}%</div>
 <div class="alert-text">
-Monitoring identified that more than {int(icr_1)}% of all analyzed cases in the state are concentrated in this planning region (<span class="highlight">{total_critica} occurrences</span>). The main vulnerability hotspot is the municipality of <span class="highlight">{cidade_critica}</span>.<br><br>
-<strong>INTERVENTION GUIDELINES (PRIMARY FOCUS):</strong><br>
-• Installation/expansion of a <i>Women’s Police Station (DDM) or Women’s House</i> in {cidade_critica}.<br>
-• Tactical strengthening of the <i>Maria da Penha Patrol</i> throughout {regiao_critica}.
+O monitoramento identificou que mais de {int(icr_1)}% de todos os casos analisados no estado estão concentrados nesta região de planejamento (<span class="highlight">{total_critica} ocorrências</span>). O principal ponto de vulnerabilidade é o município de <span class="highlight">{cidade_critica}</span>.<br><br>
+<strong>DIRETRIZES DE INTERVENÇÃO (FOCO PRINCIPAL):</strong><br>
+• Instalação/expansão de uma <i>Delegacia da Mulher (DDM) ou Casa da Mulher</i> em {cidade_critica}.<br>
+• Fortalecimento tático da <i>Patrulha Maria da Penha</i> em todo o {regiao_critica}.
 </div>
 <div class="top5-container">
-<div style="color: #ff0055; font-weight: bold; margin-bottom: 8px;">RISK MONITORING: TOP 5 REGIONS</div>
+<div style="color: #ff0055; font-weight: bold; margin-bottom: 8px;">MONITORAMENTO DE RISCO: TOP 5 REGIÕES</div>
 {html_outras_regioes}
 </div>
 </div>
 """, unsafe_allow_html=True)
         else:
-            st.info("Insufficient regional data to calculate criticality indices.")
+            st.info("Dados regionais insuficientes para calcular índices de criticidade.")
 
         st.markdown("---")
-        st.markdown("### ANALYTICAL DASHBOARD")
+        st.markdown("### PAINEL ANALÍTICO")
 
         # --- ROW 1: CAUSES AND CITIES ---
         col_g1, col_g2 = st.columns(2)
         with col_g1:
-            st.caption("DISTRIBUTION BY CAUSE / MOTIVE")
+            st.caption("DISTRIBUIÇÃO POR CAUSA / MOTIVO")
             fig_pie = px.pie(
                 df_show,
                 names='CLASSIFICACAO_CAUSA',
@@ -334,7 +334,7 @@ Monitoring identified that more than {int(icr_1)}% of all analyzed cases in the 
             st.plotly_chart(fig_pie, use_container_width=True)
 
         with col_g2:
-            st.caption("TOP 10 CITIES WITH THE MOST OCCURRENCES")
+            st.caption("TOP 10 CIDADES COM MAIS OCORRÊNCIAS")
             top_cidades = df_show['LOCALIDADE'].value_counts().head(10).reset_index()
             top_cidades.columns = ['City', 'Cases']
             fig_bar = px.bar(
@@ -351,7 +351,7 @@ Monitoring identified that more than {int(icr_1)}% of all analyzed cases in the 
         # --- ROW 2: TEMPORAL AND PLANNING REGIONS ---
         col_g3, col_g4 = st.columns(2)
         with col_g3:
-            st.caption("TIME EVOLUTION (MONTH/YEAR)")
+            st.caption("EVOLUÇÃO TEMPORAL (MÊS/ANO)")
             timeline_df = df_show.groupby('ANO_MES').size().reset_index(name='QUANTITY').sort_values('ANO_MES')
             if not timeline_df.empty:
                 fig_line = px.area(
@@ -370,9 +370,9 @@ Monitoring identified that more than {int(icr_1)}% of all analyzed cases in the 
                 st.plotly_chart(fig_line, use_container_width=True)
 
         with col_g4:
-            st.caption("INCIDENCE BY PLANNING REGION (IPECE)")
+            st.caption("INCIDÊNCIA POR REGIÃO DE PLANEJAMENTO (IPECE)")
             regioes_count = df_show['MACROREGIAO'].value_counts().reset_index()
-            regioes_count.columns = ['Planning Region', 'Cases']
+            regioes_count.columns = ['Região de Planejamento', 'Casos']
             fig_macro = px.bar(
                 regioes_count,
                 x='Cases',
@@ -390,13 +390,13 @@ Monitoring identified that more than {int(icr_1)}% of all analyzed cases in the 
             st.plotly_chart(fig_macro, use_container_width=True)
 
         # --- ROW 3: DEMOGRAPHICS ---
-        st.markdown("### VICTIM PROFILE")
+        st.markdown("### PERFIL DA VÍTIMA")
         col_d1, col_d2 = st.columns(2)
 
         with col_d1:
-            st.caption("IDENTIFIED SKIN COLOR")
-            df_cor = df_show['COR_PELE'].fillna('Not informed').value_counts().reset_index()
-            df_cor.columns = ['Color', 'Total']
+            st.caption("COR DE PELE IDENTIFICADA")
+            df_cor = df_show['COR_PELE'].fillna('Não informada').value_counts().reset_index()
+            df_cor.columns = ['Cor', 'Total']
             fig_skin = px.bar(
                 df_cor,
                 x='Total',
@@ -410,7 +410,7 @@ Monitoring identified that more than {int(icr_1)}% of all analyzed cases in the 
             st.plotly_chart(fig_skin, use_container_width=True)
 
         with col_d2:
-            st.caption("AGE DISTRIBUTION")
+            st.caption("DISTRIBUIÇÃO ETÁRIA")
             df_idade = df_show.dropna(subset=['IDADE_ESTIMADA'])
             if not df_idade.empty:
                 fig_hist = px.histogram(
@@ -424,15 +424,15 @@ Monitoring identified that more than {int(icr_1)}% of all analyzed cases in the 
                 st.plotly_chart(fig_hist, use_container_width=True)
 
         # --- TABLE ---
-        st.markdown("### RAW DATA")
+        st.markdown("### DADOS BRUTOS")
         df_tabela = df_show[[
             'DATA', 'LOCALIDADE', 'MACROREGIAO', 'IDADE_ESTIMADA',
             'COR_PELE', 'CLASSIFICACAO_CAUSA', 'NOTÍCIA_ORIGINAL'
         ]].copy()
 
         df_tabela.columns = [
-            'Date', 'Location', 'Planning Region', 'Estimated Age',
-            'Skin Color', 'Cause Classification', 'Original News'
+            'Data', 'Localidade', 'Região de Planejamento', 'Idade Estimada',
+            'Cor da Pele', 'Classificação da Causa', 'Notícia Original'
         ]
 
         st.dataframe(df_tabela, use_container_width=True, height=300)
@@ -441,7 +441,7 @@ Monitoring identified that more than {int(icr_1)}% of all analyzed cases in the 
         col_dl1, col_dl2 = st.columns(2)
 
         csv = df_show.to_csv(index=False).encode('utf-8-sig')
-        col_dl1.download_button("DOWNLOAD .CSV", csv, 'femicide_data.csv', 'text/csv')
+        col_dl1.download_button("BAIXAR .CSV", csv, 'femicide_data.csv', 'text/csv')
 
         buffer = io.BytesIO()
         with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
@@ -449,7 +449,7 @@ Monitoring identified that more than {int(icr_1)}% of all analyzed cases in the 
         buffer.seek(0)
 
         col_dl2.download_button(
-            "DOWNLOAD .XLSX",
+            "BAIXAR .XLSX",
             buffer,
             'femicide_data.xlsx',
             'application/vnd.ms-excel'
@@ -459,7 +459,7 @@ Monitoring identified that more than {int(icr_1)}% of all analyzed cases in the 
     col_p1, col_p2, col_p3 = st.columns([1, 2, 1])
     with col_p2:
         st.markdown(
-            "<h3 style='text-align: center; color: #444; font-size: 14px; margin-bottom: 10px;'>SUPPORT AND SPONSORS</h3>",
+            "<h3 style='text-align: center; color: #444; font-size: 14px; margin-bottom: 10px;'>APOIO E PATROCÍNIO</h3>",
             unsafe_allow_html=True
         )
         st.image("https://imgur.com/xLFPmmy.png", use_container_width=True)
