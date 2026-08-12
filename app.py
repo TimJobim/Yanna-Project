@@ -257,33 +257,6 @@ def main():
                         st.session_state['df_resultado'] = pd.concat([dados_extraidos, df_raw], axis=1)
             except Exception as e:
                 st.error(f"ERRO: {e}")
-    else:
-        st.subheader("ANÁLISE ÚNICA OU MULTI-ENTRADA")
-        st.info("Use ENTER para separar várias notícias. O áudio adiciona novas linhas automaticamente.")
-
-        if 'texto_manual' not in st.session_state:
-            st.session_state['texto_manual'] = ""
-
-        c_mic, c_void = st.columns([1, 4])
-        with c_mic:
-            st.markdown("**GRAVAR ÁUDIO:**")
-            audio_text = speech_to_text(language='pt-BR', just_once=True, key='voice_recorder')
-
-        if audio_text:
-            if st.session_state['texto_manual']:
-                st.session_state['texto_manual'] += "\n" + audio_text
-            else:
-                st.session_state['texto_manual'] = audio_text
-
-        texto_input = st.text_area("Insira relatórios (separados por ENTER):", height=200, key='texto_manual')
-
-        if st.button("CLASSIFICAR DADOS"):
-            if texto_input:
-                lista_noticias = [t.strip() for t in texto_input.split('\n') if t.strip()]
-                if lista_noticias:
-                    resultados = [extractor.processar_texto(noticia) for noticia in lista_noticias]
-                    st.session_state['df_resultado'] = pd.DataFrame(resultados)
-                    st.success(f"{len(lista_noticias)} notícias identificadas!")
 
     if 'df_resultado' in st.session_state and not st.session_state['df_resultado'].empty:
         df_show = st.session_state['df_resultado'].copy()
