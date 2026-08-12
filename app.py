@@ -229,7 +229,14 @@ def main():
             # Botão de teste ao lado do gravador (estilo similar ao botão principal)
             if st.button("Carregar 10 notícias de teste", key='btn_sample'):
                 st.session_state.update({'texto_manual': sample_text})
-                st.experimental_rerun()
+                if hasattr(st, "experimental_rerun"):
+                    st.experimental_rerun()
+                elif hasattr(st, "experimental_get_query_params") and hasattr(st, "experimental_set_query_params"):
+                    params = st.experimental_get_query_params()
+                    toggle = int(params.get("_update", ["0"])[0]) ^ 1
+                    st.experimental_set_query_params(_update=str(toggle))
+                else:
+                    st.stop()
 
         if audio_text:
             if st.session_state['texto_manual']:
