@@ -226,6 +226,11 @@ def main():
             st.markdown("**GRAVAR ÁUDIO:**")
             audio_text = speech_to_text(language='pt-BR', just_once=True, key='voice_recorder')
 
+            # Botão de teste ao lado do gravador (estilo similar ao botão principal)
+            if st.button("Carregar 10 notícias de teste", key='btn_sample'):
+                st.session_state.update({'texto_manual': sample_text})
+                st.experimental_rerun()
+
         if audio_text:
             if st.session_state['texto_manual']:
                 st.session_state['texto_manual'] += "\n" + audio_text
@@ -233,9 +238,6 @@ def main():
                 st.session_state['texto_manual'] = audio_text
 
         texto_input = st.text_area("Insira relatórios (separados por ENTER):", height=200, key='texto_manual')
-
-        if st.button("Carregar 10 notícias de teste"):
-            st.session_state['texto_manual'] = sample_text
 
         if st.button("CLASSIFICAR DADOS"):
             if texto_input:
