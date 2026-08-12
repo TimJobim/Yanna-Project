@@ -358,28 +358,33 @@ O monitoramento identificou que mais de {int(icr_1)}% de todos os casos analisad
         with col_g2:
             st.caption("TOP 10 CIDADES COM MAIS OCORRÊNCIAS")
             top_cidades = df_show['LOCALIDADE'].value_counts().head(10).reset_index()
-            top_cidades.columns = ['City', 'Cases']
+            top_cidades.columns = ['Cidade', 'Ocorrências']
             fig_bar = px.bar(
                 top_cidades,
-                x='City',
-                y='Cases',
-                color='Cases',
+                x='Cidade',
+                y='Ocorrências',
+                color='Ocorrências',
                 color_continuous_scale=['#440022', '#ff0055'],
                 template="plotly_dark"
             )
-            fig_bar.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
+            fig_bar.update_layout(
+                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(0,0,0,0)",
+                xaxis_title='Município',
+                yaxis_title='Ocorrências'
+            )
             st.plotly_chart(fig_bar, use_container_width=True)
 
         # --- ROW 2: TEMPORAL AND PLANNING REGIONS ---
         col_g3, col_g4 = st.columns(2)
         with col_g3:
             st.caption("EVOLUÇÃO TEMPORAL (MÊS/ANO)")
-            timeline_df = df_show.groupby('ANO_MES').size().reset_index(name='QUANTITY').sort_values('ANO_MES')
+            timeline_df = df_show.groupby('ANO_MES').size().reset_index(name='Quantidade').sort_values('ANO_MES')
             if not timeline_df.empty:
                 fig_line = px.area(
                     timeline_df,
                     x='ANO_MES',
-                    y='QUANTITY',
+                    y='Quantidade',
                     markers=True,
                     color_discrete_sequence=['#00ffcc'],
                     template="plotly_dark"
@@ -397,16 +402,18 @@ O monitoramento identificou que mais de {int(icr_1)}% de todos os casos analisad
             regioes_count.columns = ['Região de Planejamento', 'Casos']
             fig_macro = px.bar(
                 regioes_count,
-                x='Cases',
-                y='Planning Region',
+                x='Casos',
+                y='Região de Planejamento',
                 orientation='h',
-                color='Cases',
+                color='Casos',
                 color_continuous_scale=['#440022', '#ff0055'],
                 template="plotly_dark"
             )
             fig_macro.update_layout(
                 paper_bgcolor="rgba(0,0,0,0)",
                 plot_bgcolor="rgba(0,0,0,0)",
+                xaxis_title='Casos',
+                yaxis_title='Região de Planejamento',
                 yaxis={'categoryorder': 'total ascending'}
             )
             st.plotly_chart(fig_macro, use_container_width=True)
@@ -422,13 +429,18 @@ O monitoramento identificou que mais de {int(icr_1)}% de todos os casos analisad
             fig_skin = px.bar(
                 df_cor,
                 x='Total',
-                y='Color',
+                y='Cor',
                 orientation='h',
                 color='Total',
                 color_continuous_scale=['#333333', '#e0e0e0'],
                 template="plotly_dark"
             )
-            fig_skin.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
+            fig_skin.update_layout(
+                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(0,0,0,0)",
+                xaxis_title='Total',
+                yaxis_title='Cor de pele'
+            )
             st.plotly_chart(fig_skin, use_container_width=True)
 
         with col_d2:
