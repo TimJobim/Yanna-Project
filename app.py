@@ -189,14 +189,61 @@ def main():
         st.caption("Desenvolvido por: Yanna Queiroz | Orientadores: Prof. Helyson Braz e Profa. Ingrid Cunha")
 
     st.sidebar.markdown("### Gerar notícias por:")
+    if 'modo_input' not in st.session_state:
+        st.session_state['modo_input'] = "ENTRADA MANUAL / VOZ"
+
     modo_input = st.sidebar.radio(
         "Fonte de dados:",
-        ("UPLOAD DE ARQUIVO (.CSV)", "ENTRADA MANUAL / VOZ"),
+        ("ENTRADA MANUAL / VOZ", "UPLOAD DE ARQUIVO (.CSV)"),
+        key='modo_input',
         label_visibility="collapsed"
     )
+
+    if st.sidebar.button("Carregar 10 notícias de teste"):
+        st.session_state['modo_input'] = "ENTRADA MANUAL / VOZ"
+        st.session_state['texto_manual'] = (
+            "Fortaleza, 12/03/2024 — 34 anos, parda, relato de ex-companheiro com ciúmes e medida protetiva negada após várias tentativas de polícia.\n"
+            "Em 5 de abril de 2024, Sobral registrou ameaça contra uma mulher de 28 anos, branca, motivada por separação, e a família pediu ajuda urgente.\n"
+            "Uma jovem de 23 anos, preta, foi morta em Juazeiro do Norte no dia 18 de junho de 2024, em caso que envolve violência doméstica pelo ex-marido.\n"
+            "Crato, 30 de janeiro de 2024: mulher de 41 anos, amarela, denunciou transfobia e agressão cometida pelo companheiro que se recusava a aceitar sua orientação.\n"
+            "22/02 em Limoeiro do Norte, 30 anos, parda, sofreu ataque após expor denúncias de tráfico e violência na família.\n"
+            "Iguatu, 03/07/2024 — 27 anos, preta, relacionamento conturbado terminou com o autor descumprindo medida protetiva.\n"
+            "No começo de maio de 2024, Maranguape viu ameaças de ex-companheiro armado contra uma jovem de 19 anos, branca, em episódio marcado por ciúmes obsessivos.\n"
+            "27-08-2024 Canindé, 38 anos, parda, caso complexo com quadrilha de tráfico e intimidação explícita à vítima.\n"
+            "Quixadá registrou em 15/09/2024 uma ocorrência de crime motivado por orientação sexual e ódio, com vítima de 26 anos, amarela, que relatou preconceito.\n"
+            "Viçosa do Ceará, 09/10/2024: 32 anos, preta, desentendimento doméstico virou homicídio durante briga com o parceiro."
+        )
+
     extractor = SmartExtractor()
 
-    if modo_input == "FILE UPLOAD (.CSV)":
+    if modo_input == "ENTRADA MANUAL / VOZ":
+        st.subheader("ANÁLISE ÚNICA OU MULTI-ENTRADA")
+        st.info("Use ENTER para separar várias notícias. O áudio adiciona novas linhas automaticamente.")
+
+        if 'texto_manual' not in st.session_state:
+            st.session_state['texto_manual'] = ""
+
+        c_mic, c_void = st.columns([1, 4])
+        with c_mic:
+            st.markdown("**GRAVAR ÁUDIO:**")
+            audio_text = speech_to_text(language='pt-BR', just_once=True, key='voice_recorder')
+
+        if audio_text:
+            if st.session_state['texto_manual']:
+                st.session_state['texto_manual'] += "\n" + audio_text
+            else:
+                st.session_state['texto_manual'] = audio_text
+
+        texto_input = st.text_area("Insira relatórios (separados por ENTER):", height=200, key='texto_manual')
+
+        if st.button("CLASSIFICAR DADOS"):
+            if texto_input:
+                lista_noticias = [t.strip() for t in texto_input.split('\n') if t.strip()]
+                if lista_noticias:
+                    resultados = [extractor.processar_texto(noticia) for noticia in lista_noticias]
+                    st.session_state['df_resultado'] = pd.DataFrame(resultados)
+                    st.success(f"{len(lista_noticias)} notícias identificadas!")
+    else:
         uploaded_file = st.sidebar.file_uploader("Envie o dataset bruto", type="csv")
         if uploaded_file is not None:
             try:
