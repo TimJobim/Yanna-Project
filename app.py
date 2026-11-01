@@ -287,15 +287,14 @@ def main():
         if 'texto_manual' not in st.session_state:
             st.session_state['texto_manual'] = ""
 
-        c_mic, c_sample = st.columns([1, 4])
-        with c_mic:
-            st.markdown("**Transcrever áudio**")
-            audio_text = speech_to_text(language='pt-BR', just_once=True, key='voice_recorder')
-
-        with c_sample:
-            st.markdown("<div style='height: 32px;'></div>", unsafe_allow_html=True)
-            if st.button("Carregar notícias de exemplo", key='btn_sample'):
-                st.session_state['texto_manual'] = sample_text
+        # Sem colunas, empilhando os itens verticalmente
+        st.markdown("**Transcrever áudio**")
+        audio_text = speech_to_text(language='pt-BR', just_once=True, key='voice_recorder')
+        
+        st.markdown("<div style='height: 8px;'></div>", unsafe_allow_html=True)
+        
+        if st.button("Carregar notícias de exemplo", key='btn_sample'):
+            st.session_state['texto_manual'] = sample_text
 
         if audio_text:
             if st.session_state['texto_manual']:
