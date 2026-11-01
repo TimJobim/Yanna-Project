@@ -565,5 +565,3 @@ Os dados mostram que <span class="highlight">{total_critica} casos ({icr_1:.1f}%
 
 if __name__ == "__main__":
     main()
-```<br>
-<br>
