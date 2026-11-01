@@ -27,7 +27,16 @@ st.markdown("""
         [data-testid="stCaptionContainer"] { color: #68716e; }
         section[data-testid="stSidebar"] {
             background: #f0f1ee;
+            color: #28312f;
             border-right: 1px solid #e1e4df;
+        }
+        section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"],
+        section[data-testid="stSidebar"] [data-testid="stWidgetLabel"],
+        section[data-testid="stSidebar"] label,
+        section[data-testid="stSidebar"] label p,
+        section[data-testid="stSidebar"] label span,
+        section[data-testid="stSidebar"] [data-testid="stFileUploader"] small {
+            color: #28312f !important;
         }
         div[data-testid="stMetric"] {
             background: #ffffff;
@@ -264,13 +273,14 @@ def main():
         if 'texto_manual' not in st.session_state:
             st.session_state['texto_manual'] = ""
 
-        c_mic, _ = st.columns([1, 4])
+        c_mic, c_sample = st.columns([1, 4])
         with c_mic:
             st.markdown("**Transcrever áudio**")
             audio_text = speech_to_text(language='pt-BR', just_once=True, key='voice_recorder')
 
-        if st.button("Carregar notícias de exemplo", key='btn_sample'):
-            st.session_state['texto_manual'] = sample_text
+        with c_sample:
+            if st.button("Carregar notícias de exemplo", key='btn_sample'):
+                st.session_state['texto_manual'] = sample_text
 
         if audio_text:
             if st.session_state['texto_manual']:
