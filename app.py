@@ -10,55 +10,91 @@ from streamlit_mic_recorder import speech_to_text
 # ==============================================================================
 st.set_page_config(
     layout="wide",
-    page_title="Sistema de Monitoramento de Feminicídio",
-    page_icon="📊"
+    page_title="Monitoramento de feminicídios no Ceará"
 )
 
 st.markdown("""
     <style>
-        .stApp { background-color: #050505; color: #e0e0e0; font-family: 'Courier New', Courier, monospace; }
-        h1, h2, h3 { color: #ff0055; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 10px #ff0055; }
-        .stDataFrame { border: 1px solid #333; }
-        .stTextArea textarea { background-color: #0a0a0a; color: #00ffcc; border: 1px solid #333; }
-        div.stButton > button { background-color: #000; color: #ff0055; border: 1px solid #ff0055; border-radius: 0px; padding: 10px 24px; text-transform: uppercase; font-weight: bold; width: 100%; }
-        div.stButton > button:hover { background-color: #ff0055; color: #fff; box-shadow: 0 0 20px #ff0055; }
-        section[data-testid="stSidebar"] { background-color: #080808; border-right: 1px solid #222; }
-        div[data-testid="stMetricValue"] { color: #00ffcc; text-shadow: 0 0 5px #00ffcc; }
-
-        /* Public policy alert styling */
-        .alert-box {
-            background-color: #1a0008;
-            border: 1px solid #ff0055;
-            border-left: 8px solid #ff0055;
-            padding: 20px;
-            margin-bottom: 25px;
-            border-radius: 4px;
+        .stApp {
+            background: #f7f7f5;
+            color: #28312f;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         }
-        .alert-title { color: #ff0055; font-size: 1.2rem; font-weight: bold; margin-bottom: 10px; display: flex; align-items: center;}
-        .alert-text { color: #e0e0e0; font-size: 1rem; line-height: 1.5;}
-        .highlight { color: #00ffcc; font-weight: bold; }
-        .index-badge {
-            background-color: #ff0055;
+        .block-container { max-width: 1280px; padding: 2.5rem 2rem 3rem; }
+        h1, h2, h3 { color: #28312f; letter-spacing: -0.025em; text-transform: none; }
+        h1 { font-size: 2.15rem; font-weight: 650; }
+        h2, h3 { font-weight: 600; }
+        [data-testid="stCaptionContainer"] { color: #68716e; }
+        section[data-testid="stSidebar"] {
+            background: #f0f1ee;
+            border-right: 1px solid #e1e4df;
+        }
+        div[data-testid="stMetric"] {
+            background: #ffffff;
+            border: 1px solid #e6e8e4;
+            border-radius: 10px;
+            padding: 16px 18px;
+        }
+        div[data-testid="stMetricLabel"] { color: #68716e; }
+        div[data-testid="stMetricValue"] { color: #28312f; }
+        .stTextArea textarea, .stTextInput input {
+            background: #ffffff;
+            color: #28312f;
+            border: 1px solid #d9ded9;
+            border-radius: 8px;
+        }
+        .stTextArea textarea:focus, .stTextInput input:focus {
+            border-color: #8a4b55;
+            box-shadow: 0 0 0 1px #8a4b55;
+        }
+        div.stButton > button, div.stDownloadButton > button {
+            background: #7d3f49;
             color: #ffffff;
-            padding: 8px 15px;
-            border-radius: 3px;
-            font-size: 1.2rem;
-            font-weight: bold;
+            border: 1px solid #7d3f49;
+            border-radius: 8px;
+            padding: 0.55rem 1rem;
+            font-weight: 600;
+            transition: background-color 120ms ease, border-color 120ms ease;
+        }
+        div.stButton > button:hover, div.stDownloadButton > button:hover {
+            background: #69343d;
+            border-color: #69343d;
+            color: #ffffff;
+        }
+        div.stButton > button:focus, div.stDownloadButton > button:focus {
+            box-shadow: 0 0 0 2px #f7f7f5, 0 0 0 4px #7d3f49;
+        }
+        .alert-box {
+            background: #ffffff;
+            border: 1px solid #e6e8e4;
+            border-left: 4px solid #8a4b55;
+            padding: 22px 24px;
+            margin: 12px 0 24px;
+            border-radius: 10px;
+        }
+        .alert-title { color: #713943; font-size: 1.1rem; font-weight: 650; margin-bottom: 12px; }
+        .alert-text { color: #454e4b; font-size: 0.98rem; line-height: 1.65; }
+        .highlight { color: #713943; font-weight: 650; }
+        .index-badge {
+            background: #f5ebec;
+            color: #713943;
+            padding: 7px 11px;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: 600;
             display: inline-block;
-            margin-bottom: 15px;
-            box-shadow: 0 0 10px #ff0055;
+            margin: 2px 0 15px;
         }
         .top5-container {
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px dashed rgba(255, 0, 85, 0.4);
+            margin-top: 18px;
+            padding-top: 14px;
+            border-top: 1px solid #e6e8e4;
         }
-        .top5-item {
-            font-size: 0.95rem;
-            margin-bottom: 5px;
-            color: #ccc;
-        }
-        .top5-rank { color: #00ffcc; font-weight: bold; width: 30px; display: inline-block; }
+        .top5-item { font-size: 0.94rem; margin-bottom: 7px; color: #454e4b; }
+        .top5-rank { color: #713943; font-weight: 650; width: 30px; display: inline-block; }
+        .stDataFrame { border: 1px solid #e1e4df; border-radius: 8px; }
+        div[data-testid="stImage"] { display: flex; justify-content: center; }
+        hr { border-color: #e1e4df; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -188,18 +224,20 @@ class SmartExtractor:
 # MAIN INTERFACE
 # ==============================================================================
 def main():
-    col_h1, col_h2 = st.columns([3, 1])
-    with col_h1:
-        st.title("Sistema de Monitoramento de Feminicídio do Ceará")
-        st.caption("Desenvolvido por: Yanna Queiroz | Orientadores: Prof. Helyson Braz e Profa. Ingrid Cunha")
+    st.title("Monitoramento de feminicídios no Ceará")
+    st.caption("Análise de dados extraídos de notícias e relatórios.")
 
-    st.sidebar.markdown("### Gerar notícias por:")
+    st.sidebar.markdown("### Fonte dos dados")
     if 'modo_input' not in st.session_state:
         st.session_state['modo_input'] = "ENTRADA MANUAL / VOZ"
 
     modo_input = st.sidebar.radio(
-        "Fonte de dados:",
+        "Como deseja inserir os dados?",
         ("ENTRADA MANUAL / VOZ", "UPLOAD DE ARQUIVO (.CSV)"),
+        format_func=lambda value: {
+            "ENTRADA MANUAL / VOZ": "Entrada manual ou por voz",
+            "UPLOAD DE ARQUIVO (.CSV)": "Enviar arquivo CSV",
+        }[value],
         key='modo_input',
         label_visibility="collapsed"
     )
@@ -220,19 +258,19 @@ def main():
             "Viçosa do Ceará, 09/10/2024: 32 anos, preta, desentendimento doméstico virou homicídio durante briga com o parceiro."
         )
 
-        st.subheader("ANÁLISE ÚNICA OU MULTI-ENTRADA")
-        st.info("Use ENTER para separar várias notícias. O áudio adiciona novas linhas automaticamente.")
+        st.subheader("Adicionar notícias")
+        st.info("Digite ou cole uma notícia por linha. A transcrição de áudio será adicionada ao texto.")
 
         if 'texto_manual' not in st.session_state:
             st.session_state['texto_manual'] = ""
 
-        c_mic, c_void = st.columns([1, 4])
+        c_mic, _ = st.columns([1, 4])
         with c_mic:
-            st.markdown("**GRAVAR ÁUDIO:**")
+            st.markdown("**Transcrever áudio**")
             audio_text = speech_to_text(language='pt-BR', just_once=True, key='voice_recorder')
 
-            if st.button("Carregar 10 notícias de teste", key='btn_sample'):
-                st.session_state['texto_manual'] = sample_text
+        if st.button("Carregar notícias de exemplo", key='btn_sample'):
+            st.session_state['texto_manual'] = sample_text
 
         if audio_text:
             if st.session_state['texto_manual']:
@@ -240,9 +278,9 @@ def main():
             else:
                 st.session_state['texto_manual'] = audio_text
 
-        texto_input = st.text_area("Insira relatórios (separados por ENTER):", height=200, key='texto_manual')
+        texto_input = st.text_area("Notícias e relatos", height=200, key='texto_manual')
 
-        if st.button("CLASSIFICAR DADOS"):
+        if st.button("Analisar notícias"):
             if texto_input:
                 lista_noticias = [t.strip() for t in texto_input.split('\n') if t.strip()]
                 if lista_noticias:
@@ -250,19 +288,19 @@ def main():
                     st.session_state['df_resultado'] = pd.DataFrame(resultados)
                     st.success(f"{len(lista_noticias)} notícias identificadas!")
     else:
-        uploaded_file = st.sidebar.file_uploader("Envie o dataset bruto", type="csv")
+        uploaded_file = st.sidebar.file_uploader("Selecione um arquivo", type="csv")
         if uploaded_file is not None:
             try:
                 df_raw = pd.read_csv(uploaded_file)
                 col_name = df_raw.columns[0]
                 if 'conteudo_noticia' in df_raw.columns:
                     col_name = 'conteudo_noticia'
-                if st.sidebar.button("INICIAR PROCESSAMENTO EM LOTE"):
-                    with st.spinner("ANALISANDO PADRÕES SEMÂNTICOS E GEOPOLÍTICOS..."):
+                if st.sidebar.button("Processar arquivo"):
+                    with st.spinner("Analisando os dados..."):
                         dados_extraidos = df_raw[col_name].apply(lambda x: pd.Series(extractor.processar_texto(x)))
                         st.session_state['df_resultado'] = pd.concat([dados_extraidos, df_raw], axis=1)
             except Exception as e:
-                st.error(f"ERRO: {e}")
+                st.error(f"Não foi possível processar o arquivo: {e}")
 
     if 'df_resultado' in st.session_state and not st.session_state['df_resultado'].empty:
         df_show = st.session_state['df_resultado'].copy()
@@ -273,11 +311,11 @@ def main():
 
         # --- METRICS ---
         c1, c2, c3, c4 = st.columns(4)
-        c1.metric("CASOS ANALISADOS", len(df_show))
-        c2.metric("MUNICÍPIOS AFETADOS", df_show['LOCALIDADE'].nunique())
-        c3.metric("IDADE MÉDIA", f"{df_show['IDADE_ESTIMADA'].mean():.1f}")
+        c1.metric("Casos analisados", len(df_show))
+        c2.metric("Municípios identificados", df_show['LOCALIDADE'].nunique())
+        c3.metric("Idade média", f"{df_show['IDADE_ESTIMADA'].mean():.1f}")
         try:
-            c4.metric("CAUSA MAIS COMUM", df_show['CLASSIFICACAO_CAUSA'].mode()[0])
+            c4.metric("Causa mais comum", df_show['CLASSIFICACAO_CAUSA'].mode()[0])
         except:
             pass
 
@@ -286,7 +324,7 @@ def main():
         # ==============================================================================
         # ALERT SYSTEM WITH TOP 5 (ICR RANKING)
         # ==============================================================================
-        st.markdown("### SISTEMA DE ALERTA DE POLÍTICAS PÚBLICAS")
+        st.markdown("### Concentração regional")
 
         regioes_afetadas = df_show[df_show['MACROREGIAO'] != "Não Identificada"]
         if not regioes_afetadas.empty:
@@ -305,22 +343,22 @@ def main():
                 r_icr = (r_casos / total_estado) * 100
                 html_outras_regioes += f"""<div class='top5-item'>
 <span class='top5-rank'>#{i+1}</span>
-<strong>{r_nome}</strong> &mdash; ICR: <span style='color:#00ffcc;'>{r_icr:.1f}%</span>
+<strong>{r_nome}</strong> &mdash; Índice: <span style='color:#713943;'>{r_icr:.1f}%</span>
 <span style='font-size:0.85rem;'>({r_casos} casos)</span>
 </div>"""
 
             st.markdown(f"""
 <div class="alert-box">
-<div class="alert-title">⚠️ ZONA DE ALTA CRITICIDADE DETECTADA: {regiao_critica.upper()}</div>
-<div class="index-badge">ÍNDICE DE CONCENTRAÇÃO REGIONAL (ICR): {icr_1:.1f}%</div>
+<div class="alert-title">Região com maior concentração: {regiao_critica}</div>
+<div class="index-badge">Índice de concentração regional: {icr_1:.1f}%</div>
 <div class="alert-text">
-O monitoramento identificou que mais de {int(icr_1)}% de todos os casos analisados no estado estão concentrados nesta região de planejamento (<span class="highlight">{total_critica} ocorrências</span>). O principal ponto de vulnerabilidade é o município de <span class="highlight">{cidade_critica}</span>.<br><br>
-<strong>DIRETRIZES DE INTERVENÇÃO (FOCO PRINCIPAL):</strong><br>
-• Instalação/expansão de uma <i>Delegacia da Mulher (DDM) ou Casa da Mulher</i> em {cidade_critica}.<br>
-• Fortalecimento tático da <i>Patrulha Maria da Penha</i> em todo o {regiao_critica}.
+Os dados mostram que <span class="highlight">{total_critica} casos ({icr_1:.1f}%)</span> estão nessa região. O município com mais registros é <span class="highlight">{cidade_critica}</span>.<br><br>
+<strong>Possíveis frentes de atenção</strong><br>
+• Avaliar a oferta de atendimento especializado em {cidade_critica}.<br>
+• Acompanhar os registros e a rede de proteção em {regiao_critica}.
 </div>
 <div class="top5-container">
-<div style="color: #ff0055; font-weight: bold; margin-bottom: 8px;">MONITORAMENTO DE RISCO: TOP 5 REGIÕES</div>
+<div style="color: #713943; font-weight: 600; margin-bottom: 8px;">Outras regiões com mais registros</div>
 {html_outras_regioes}
 </div>
 </div>
@@ -329,24 +367,24 @@ O monitoramento identificou que mais de {int(icr_1)}% de todos os casos analisad
             st.info("Dados regionais insuficientes para calcular índices de criticidade.")
 
         st.markdown("---")
-        st.markdown("### PAINEL ANALÍTICO")
+        st.markdown("### Visão geral")
 
         # --- ROW 1: CAUSES AND CITIES ---
         col_g1, col_g2 = st.columns(2)
         with col_g1:
-            st.caption("DISTRIBUIÇÃO POR CAUSA / MOTIVO")
+            st.caption("Casos por causa identificada")
             fig_pie = px.pie(
                 df_show,
                 names='CLASSIFICACAO_CAUSA',
                 hole=0.6,
-                color_discrete_sequence=['#ff0055', '#00ffcc', '#ffffff', '#444444'],
-                template="plotly_dark"
+                color_discrete_sequence=['#7d3f49', '#6f8b80', '#c5a36d', '#a8adaa'],
+                template="plotly_white"
             )
-            fig_pie.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
+            fig_pie.update_layout(paper_bgcolor="#ffffff", plot_bgcolor="#ffffff", font_color="#454e4b")
             st.plotly_chart(fig_pie, use_container_width=True)
 
         with col_g2:
-            st.caption("TOP 10 CIDADES COM MAIS OCORRÊNCIAS")
+            st.caption("Municípios com mais registros")
             top_cidades = df_show['LOCALIDADE'].value_counts().head(10).reset_index()
             top_cidades.columns = ['Cidade', 'Ocorrências']
             fig_bar = px.bar(
@@ -354,21 +392,22 @@ O monitoramento identificou que mais de {int(icr_1)}% de todos os casos analisad
                 x='Cidade',
                 y='Ocorrências',
                 color='Ocorrências',
-                color_continuous_scale=['#440022', '#ff0055'],
-                template="plotly_dark"
+                color_continuous_scale=['#eadbdd', '#7d3f49'],
+                template="plotly_white"
             )
             fig_bar.update_layout(
-                paper_bgcolor="rgba(0,0,0,0)",
-                plot_bgcolor="rgba(0,0,0,0)",
+                paper_bgcolor="#ffffff",
+                plot_bgcolor="#ffffff",
+                font_color="#454e4b",
                 xaxis_title='Município',
-                yaxis_title='Ocorrências'
+                yaxis_title='Registros'
             )
             st.plotly_chart(fig_bar, use_container_width=True)
 
         # --- ROW 2: TEMPORAL AND PLANNING REGIONS ---
         col_g3, col_g4 = st.columns(2)
         with col_g3:
-            st.caption("EVOLUÇÃO TEMPORAL (MÊS/ANO)")
+            st.caption("Registros ao longo do tempo")
             timeline_df = df_show.groupby('ANO_MES').size().reset_index(name='Quantidade').sort_values('ANO_MES')
             if not timeline_df.empty:
                 fig_line = px.area(
@@ -376,19 +415,20 @@ O monitoramento identificou que mais de {int(icr_1)}% de todos os casos analisad
                     x='ANO_MES',
                     y='Quantidade',
                     markers=True,
-                    color_discrete_sequence=['#00ffcc'],
-                    template="plotly_dark"
+                    color_discrete_sequence=['#6f8b80'],
+                    template="plotly_white"
                 )
                 fig_line.update_layout(
-                    paper_bgcolor="rgba(0,0,0,0)",
-                    plot_bgcolor="rgba(0,0,0,0)",
+                    paper_bgcolor="#ffffff",
+                    plot_bgcolor="#ffffff",
+                    font_color="#454e4b",
                     xaxis_title='Período',
                     yaxis_title='Quantidade'
                 )
                 st.plotly_chart(fig_line, use_container_width=True)
 
         with col_g4:
-            st.caption("INCIDÊNCIA POR REGIÃO DE PLANEJAMENTO (IPECE)")
+            st.caption("Registros por região de planejamento")
             regioes_count = df_show['MACROREGIAO'].value_counts().reset_index()
             regioes_count.columns = ['Região de Planejamento', 'Casos']
             fig_macro = px.bar(
@@ -397,12 +437,13 @@ O monitoramento identificou que mais de {int(icr_1)}% de todos os casos analisad
                 y='Região de Planejamento',
                 orientation='h',
                 color='Casos',
-                color_continuous_scale=['#440022', '#ff0055'],
-                template="plotly_dark"
+                color_continuous_scale=['#eadbdd', '#7d3f49'],
+                template="plotly_white"
             )
             fig_macro.update_layout(
-                paper_bgcolor="rgba(0,0,0,0)",
-                plot_bgcolor="rgba(0,0,0,0)",
+                paper_bgcolor="#ffffff",
+                plot_bgcolor="#ffffff",
+                font_color="#454e4b",
                 xaxis_title='Casos',
                 yaxis_title='Região de Planejamento',
                 yaxis={'categoryorder': 'total ascending'}
@@ -410,11 +451,11 @@ O monitoramento identificou que mais de {int(icr_1)}% de todos os casos analisad
             st.plotly_chart(fig_macro, use_container_width=True)
 
         # --- ROW 3: DEMOGRAPHICS ---
-        st.markdown("### PERFIL DA VÍTIMA")
+        st.markdown("### Perfil das vítimas")
         col_d1, col_d2 = st.columns(2)
 
         with col_d1:
-            st.caption("COR DE PELE IDENTIFICADA")
+            st.caption("Cor da pele informada")
             df_cor = df_show['COR_PELE'].fillna('Não informada').value_counts().reset_index()
             df_cor.columns = ['Cor', 'Total']
             fig_skin = px.bar(
@@ -423,31 +464,33 @@ O monitoramento identificou que mais de {int(icr_1)}% de todos os casos analisad
                 y='Cor',
                 orientation='h',
                 color='Total',
-                color_continuous_scale=['#333333', '#e0e0e0'],
-                template="plotly_dark"
+                color_continuous_scale=['#e2e8e4', '#71847a'],
+                template="plotly_white"
             )
             fig_skin.update_layout(
-                paper_bgcolor="rgba(0,0,0,0)",
-                plot_bgcolor="rgba(0,0,0,0)",
+                paper_bgcolor="#ffffff",
+                plot_bgcolor="#ffffff",
+                font_color="#454e4b",
                 xaxis_title='Total',
                 yaxis_title='Cor de pele'
             )
             st.plotly_chart(fig_skin, use_container_width=True)
 
         with col_d2:
-            st.caption("DISTRIBUIÇÃO ETÁRIA")
+            st.caption("Faixa etária")
             df_idade = df_show.dropna(subset=['IDADE_ESTIMADA'])
             if not df_idade.empty:
                 fig_hist = px.histogram(
                     df_idade,
                     x="IDADE_ESTIMADA",
                     nbins=15,
-                    color_discrete_sequence=['#ff0055'],
-                    template="plotly_dark"
+                    color_discrete_sequence=['#7d3f49'],
+                    template="plotly_white"
                 )
                 fig_hist.update_layout(
-                    paper_bgcolor="rgba(0,0,0,0)",
-                    plot_bgcolor="rgba(0,0,0,0)",
+                    paper_bgcolor="#ffffff",
+                    plot_bgcolor="#ffffff",
+                    font_color="#454e4b",
                     bargap=0.1,
                     xaxis_title='Idade Estimada',
                     yaxis_title='Contagem'
@@ -455,7 +498,7 @@ O monitoramento identificou que mais de {int(icr_1)}% de todos os casos analisad
                 st.plotly_chart(fig_hist, use_container_width=True)
 
         # --- TABLE ---
-        st.markdown("### DADOS BRUTOS")
+        st.markdown("### Registros analisados")
         df_tabela = df_show[[
             'DATA', 'LOCALIDADE', 'MACROREGIAO', 'IDADE_ESTIMADA',
             'COR_PELE', 'CLASSIFICACAO_CAUSA', 'NOTÍCIA_ORIGINAL'
@@ -472,7 +515,7 @@ O monitoramento identificou que mais de {int(icr_1)}% de todos os casos analisad
         col_dl1, col_dl2 = st.columns(2)
 
         csv = df_show.to_csv(index=False).encode('utf-8-sig')
-        col_dl1.download_button("BAIXAR .CSV", csv, 'dados_feminicidio.csv', 'text/csv')
+        col_dl1.download_button("Baixar arquivo CSV", csv, 'dados_feminicidio.csv', 'text/csv')
 
         buffer = io.BytesIO()
         with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
@@ -480,20 +523,20 @@ O monitoramento identificou que mais de {int(icr_1)}% de todos os casos analisad
         buffer.seek(0)
 
         col_dl2.download_button(
-            "BAIXAR .XLSX",
+            "Baixar arquivo Excel",
             buffer,
             'dados_feminicidio.xlsx',
             'application/vnd.ms-excel'
         )
 
     st.markdown("---")
-    col_p1, col_p2, col_p3 = st.columns([1, 2, 1])
-    with col_p2:
+    _, apoio, _ = st.columns([1, 2, 1])
+    with apoio:
         st.markdown(
-            "<h3 style='text-align: center; color: #444; font-size: 14px; margin-bottom: 10px;'>APOIO E PATROCÍNIO</h3>",
+            "<h3 style='text-align: center; color: #68716e; font-size: 14px; margin-bottom: 10px;'>Apoio</h3>",
             unsafe_allow_html=True
         )
-        st.image("https://imgur.com/xLFPmmy.png", use_container_width=True)
+        st.image("https://imgur.com/xLFPmmy.png", width=300)
 
 if __name__ == "__main__":
     main()
