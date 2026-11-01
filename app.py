@@ -56,23 +56,42 @@ st.markdown("""
             border-color: #8a4b55;
             box-shadow: 0 0 0 1px #8a4b55;
         }
-        div.stButton > button, div.stDownloadButton > button {
+        
+        /* Botões Primários (Ações principais) e Downloads */
+        div.stButton > button[kind="primary"], div.stDownloadButton > button {
             background: #7d3f49;
             color: #ffffff;
             border: 1px solid #7d3f49;
             border-radius: 8px;
             padding: 0.55rem 1rem;
             font-weight: 600;
-            transition: background-color 120ms ease, border-color 120ms ease;
+            transition: all 120ms ease;
         }
-        div.stButton > button:hover, div.stDownloadButton > button:hover {
+        div.stButton > button[kind="primary"]:hover, div.stDownloadButton > button:hover {
             background: #69343d;
             border-color: #69343d;
             color: #ffffff;
         }
-        div.stButton > button:focus, div.stDownloadButton > button:focus {
+        div.stButton > button[kind="primary"]:focus, div.stDownloadButton > button:focus {
             box-shadow: 0 0 0 2px #f7f7f5, 0 0 0 4px #7d3f49;
         }
+
+        /* Botões Secundários (Ações discretas / de apoio) */
+        div.stButton > button[kind="secondary"] {
+            background: transparent;
+            color: #68716e;
+            border: 1px solid #d9ded9;
+            border-radius: 8px;
+            padding: 0.55rem 1rem;
+            font-weight: 500;
+            transition: all 120ms ease;
+        }
+        div.stButton > button[kind="secondary"]:hover {
+            border-color: #8a4b55;
+            color: #8a4b55;
+            background: #fcfcfb;
+        }
+
         .alert-box {
             background: #ffffff;
             border: 1px solid #e6e8e4;
@@ -127,7 +146,6 @@ MAPA_REGIOES = {
     "Vale do Jaguaribe": ["Alto Santo", "Ereré", "Iracema", "Jaguaretama", "Jaguaribara", "Jaguaribe", "Limoeiro do Norte", "Morada Nova", "Palhano", "Pereiro", "Potiretama", "Quixeré", "Russas", "São João do Jaguaribe", "Tabuleiro do Norte"]
 }
 
-# Create a master list of all cities sorted by length descending to match compound names first
 TODAS_CIDADES = []
 for cidades in MAPA_REGIOES.values():
     TODAS_CIDADES.extend(cidades)
@@ -160,7 +178,6 @@ class SmartExtractor:
         self.regex_idade_ext = r'(?i)\b([a-z]+(?:\s+e\s+[a-z]+)?)\s+anos\b'
         self.regex_cor = r'(?i)\b(branca|preta|parda|amarela)\b'
         
-        # Changed rules values to Portuguese pt-br
         self.regras_causa = [
             (r'(ex-?companheiro|marido|ciúmes|separação|medida protetiva|doméstica|terminou)', 'Violência Doméstica'),
             (r'(tráfico|drogas|facção|território|execução|pistolagem|cativeiro|tribunal do crime)', 'Tráfico/Facção'),
@@ -191,10 +208,8 @@ class SmartExtractor:
                 ano = match_dt_ext.group(3)
                 data = f"{dia}/{mes}/{ano}"
 
-        # Improved city matching: checks against the full Ceará list dynamically
         cidade = "Local Desconhecido"
         for cid in TODAS_CIDADES:
-            # Negative lookbehinds/lookaheads to ensure we are matching full words only
             padrao = r'(?<![a-zA-ZÀ-ÿ])' + re.escape(cid) + r'(?![a-zA-ZÀ-ÿ])'
             if re.search(padrao, texto_str, re.IGNORECASE):
                 cidade = cid
@@ -219,7 +234,6 @@ class SmartExtractor:
                 causa = label
                 break
 
-        # Output columns directly in Portuguese to match UI logic
         return {
             "DATA": data,
             "LOCALIDADE": cidade,
@@ -279,6 +293,7 @@ def main():
             audio_text = speech_to_text(language='pt-BR', just_once=True, key='voice_recorder')
 
         with c_sample:
+            st.markdown("<div style='height: 32px;'></div>", unsafe_allow_html=True)
             if st.button("Carregar notícias de exemplo", key='btn_sample'):
                 st.session_state['texto_manual'] = sample_text
 
@@ -290,7 +305,7 @@ def main():
 
         texto_input = st.text_area("Notícias e relatos", height=200, key='texto_manual')
 
-        if st.button("Analisar notícias"):
+        if st.button("Analisar notícias", type="primary"):
             if texto_input:
                 lista_noticias = [t.strip() for t in texto_input.split('\n') if t.strip()]
                 if lista_noticias:
@@ -305,7 +320,7 @@ def main():
                 col_name = df_raw.columns[0]
                 if 'conteudo_noticia' in df_raw.columns:
                     col_name = 'conteudo_noticia'
-                if st.sidebar.button("Processar arquivo"):
+                if st.sidebar.button("Processar arquivo", type="primary"):
                     with st.spinner("Analisando os dados..."):
                         dados_extraidos = df_raw[col_name].apply(lambda x: pd.Series(extractor.processar_texto(x)))
                         st.session_state['df_resultado'] = pd.concat([dados_extraidos, df_raw], axis=1)
@@ -364,8 +379,8 @@ def main():
 <div class="alert-text">
 Os dados mostram que <span class="highlight">{total_critica} casos ({icr_1:.1f}%)</span> estão nessa região. O município com mais registros é <span class="highlight">{cidade_critica}</span>.<br><br>
 <strong>Possíveis frentes de atenção</strong><br>
-• Avaliar a oferta de atendimento especializado em {cidade_critica}.<br>
-• Acompanhar os registros e a rede de proteção em {regiao_critica}.
+- Avaliar a oferta de atendimento especializado em {cidade_critica}.<br>
+- Acompanhar os registros e a rede de proteção em {regiao_critica}.
 </div>
 <div class="top5-container">
 <div style="color: #713943; font-weight: 600; margin-bottom: 8px;">Outras regiões com mais registros</div>
@@ -550,3 +565,5 @@ Os dados mostram que <span class="highlight">{total_critica} casos ({icr_1:.1f}%
 
 if __name__ == "__main__":
     main()
+```<br>
+<br>
